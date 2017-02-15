@@ -23,5 +23,9 @@ namespace System.Data.Common
         public virtual DbParameter CreateParameter() => null;
 
         public virtual DbDataSourceEnumerator CreateDataSourceEnumerator() => null;
+
+#if MONO
+        public virtual System.Security.CodeAccessPermission CreatePermission(System.Security.Permissions.PermissionState state) => null;
+#endif
     }
 }
