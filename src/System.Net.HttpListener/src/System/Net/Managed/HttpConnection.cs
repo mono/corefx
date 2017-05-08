@@ -103,6 +103,9 @@ namespace System.Net
             }
 
             _timer = new Timer(OnTimeout, null, Timeout.Infinite, Timeout.Infinite);
+            if (_sslStream != null) {
+                _sslStream.AuthenticateAsServer (_cert, true, (SslProtocols)ServicePointManager.SecurityProtocol, false);
+            }
             Init();
         }
 
@@ -116,13 +119,13 @@ namespace System.Net
             get { return _clientCert; }
         }
 
+        internal SslStream SslStream
+        {
+            get { return _sslStream; }
+        }
+
         private void Init()
         {
-            if (_sslStream != null)
-            {
-                _sslStream.AuthenticateAsServer(_cert, true, (SslProtocols)ServicePointManager.SecurityProtocol, false);
-            }
-
             _contextBound = false;
             _requestStream = null;
             _responseStream = null;
