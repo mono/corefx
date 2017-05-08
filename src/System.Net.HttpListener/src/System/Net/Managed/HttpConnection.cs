@@ -119,6 +119,11 @@ namespace System.Net
             get { return _clientCert; }
         }
 
+        internal SslStream SslStream
+        {
+            get { return _sslStream; }
+        }
+
         private void Init()
         {
             _contextBound = false;
