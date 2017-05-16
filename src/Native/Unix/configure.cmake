@@ -267,7 +267,16 @@ check_function_exists(
 
 check_function_exists(
     epoll_create1
-    HAVE_EPOLL)
+    HAVE_EPOLL_CREATE1)
+
+check_function_exists(
+    epoll_create
+    HAVE_EPOLL_CREATE)
+
+set (HAVE_EPOLL 0)
+if (HAVE_EPOLL_CREATE1 OR HAVE_EPOLL_CREATE)
+    set (HAVE_EPOLL 1)
+endif()
 
 check_function_exists(
     accept4

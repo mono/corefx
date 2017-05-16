@@ -20,6 +20,7 @@
 #include <sys/time.h>
 #endif
 #include <errno.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -2316,7 +2317,12 @@ static Error CreateSocketEventPortInner(int32_t* port)
 {
     assert(port != nullptr);
 
+#if HAVE_EPOLL_CREATE1
     int epollFd = epoll_create1(EPOLL_CLOEXEC);
+#else
+    int epollFd = epoll_create(256);
+    fcntl (epollFd, F_SETFD, FD_CLOEXEC);
+#endif
     if (epollFd == -1)
     {
         *port = -1;
