@@ -597,7 +597,11 @@ check_function_exists(
 # getdomainname on OSX takes an 'int' instead of a 'size_t'
 # check if compiling with 'size_t' would cause a warning
 set (PREVIOUS_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
-set (CMAKE_REQUIRED_FLAGS "-Werror -Weverything")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set (CMAKE_REQUIRED_FLAGS "-Werror -Weverything")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set (CMAKE_REQUIRED_FLAGS "-Werror -Wall")
+endif()
 check_cxx_source_compiles(
     "
     #include <unistd.h>
