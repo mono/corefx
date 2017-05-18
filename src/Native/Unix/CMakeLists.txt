@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.9)
 project(CoreFX)
 
 set(CMAKE_MACOSX_RPATH ON)
@@ -9,9 +9,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 set(VERSION_FILE_PATH "${CMAKE_BINARY_DIR}/../../version.c")
 
+if (CMAKE_VERSION VERSION_LESS 2.8.10)
+    function (add_compile_options)
+        add_definitions (${ARGV})
+    endfunction (add_compile_options)
+endif ()
+
 add_compile_options(-fPIC)
-add_compile_options(-I${CMAKE_CURRENT_SOURCE_DIR}/Common)
-add_compile_options(-I${CMAKE_CURRENT_BINARY_DIR}/Common)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Common)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/Common)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
