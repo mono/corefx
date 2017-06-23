@@ -4,6 +4,7 @@
 
 using System.Threading;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace System.Dynamic.Utils
 {
@@ -79,6 +80,11 @@ namespace System.Dynamic.Utils
 
             value = default(TValue);
             return false;
+        }
+
+        internal bool TryGetValue(MethodBase method, out object p, object pis)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

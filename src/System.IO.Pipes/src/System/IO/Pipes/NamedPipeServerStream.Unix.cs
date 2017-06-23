@@ -28,8 +28,8 @@ namespace System.IO.Pipes
 
         [SecurityCritical]
         private void Create(string pipeName, PipeDirection direction, int maxNumberOfServerInstances,
-                PipeTransmissionMode transmissionMode, PipeOptions options, int inBufferSize, int outBufferSize,
-                HandleInheritability inheritability)
+                PipeTransmissionMode transmissionMode, PipeOptions options, int inBufferSize, int outBufferSize, PipeSecurity pipeSecurity,
+                HandleInheritability inheritability, PipeAccessRights additionalAccessRights)
         {
             Debug.Assert(pipeName != null && pipeName.Length != 0, "fullPipeName is null or empty");
             Debug.Assert(direction >= PipeDirection.In && direction <= PipeDirection.InOut, "invalid pipe direction");

@@ -20,37 +20,37 @@ namespace System.IO.Pipes
 
         [SecuritySafeCritical]
         public NamedPipeServerStream(String pipeName)
-            : this(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.None, 0, 0, HandleInheritability.None)
+            : this(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.None, 0, 0, null, HandleInheritability.None, PipeAccessRights.ReadData | PipeAccessRights.WriteData)
         {
         }
 
         [SecuritySafeCritical]
         public NamedPipeServerStream(String pipeName, PipeDirection direction)
-            : this(pipeName, direction, 1, PipeTransmissionMode.Byte, PipeOptions.None, 0, 0, HandleInheritability.None)
+            : this(pipeName, direction, 1, PipeTransmissionMode.Byte, PipeOptions.None, 0, 0, null, HandleInheritability.None, PipeAccessRights.ReadData | PipeAccessRights.WriteData)
         {
         }
 
         [SecuritySafeCritical]
         public NamedPipeServerStream(String pipeName, PipeDirection direction, int maxNumberOfServerInstances)
-            : this(pipeName, direction, maxNumberOfServerInstances, PipeTransmissionMode.Byte, PipeOptions.None, 0, 0, HandleInheritability.None)
+            : this(pipeName, direction, maxNumberOfServerInstances, PipeTransmissionMode.Byte, PipeOptions.None, 0, 0, null, HandleInheritability.None, PipeAccessRights.ReadData | PipeAccessRights.WriteData)
         {
         }
 
         [SecuritySafeCritical]
         public NamedPipeServerStream(String pipeName, PipeDirection direction, int maxNumberOfServerInstances, PipeTransmissionMode transmissionMode)
-            : this(pipeName, direction, maxNumberOfServerInstances, transmissionMode, PipeOptions.None, 0, 0, HandleInheritability.None)
+            : this(pipeName, direction, maxNumberOfServerInstances, transmissionMode, PipeOptions.None, 0, 0, null, HandleInheritability.None, PipeAccessRights.ReadData | PipeAccessRights.WriteData)
         {
         }
 
         [SecuritySafeCritical]
         public NamedPipeServerStream(String pipeName, PipeDirection direction, int maxNumberOfServerInstances, PipeTransmissionMode transmissionMode, PipeOptions options)
-            : this(pipeName, direction, maxNumberOfServerInstances, transmissionMode, options, 0, 0, HandleInheritability.None)
+            : this(pipeName, direction, maxNumberOfServerInstances, transmissionMode, options, 0, 0, null, HandleInheritability.None, PipeAccessRights.ReadData | PipeAccessRights.WriteData)
         {
         }
 
         [SecuritySafeCritical]
         public NamedPipeServerStream(String pipeName, PipeDirection direction, int maxNumberOfServerInstances, PipeTransmissionMode transmissionMode, PipeOptions options, int inBufferSize, int outBufferSize)
-            : this(pipeName, direction, maxNumberOfServerInstances, transmissionMode, options, inBufferSize, outBufferSize, HandleInheritability.None)
+            : this(pipeName, direction, maxNumberOfServerInstances, transmissionMode, options, inBufferSize, outBufferSize, null, HandleInheritability.None, PipeAccessRights.ReadData | PipeAccessRights.WriteData)
         {
         }
 
@@ -82,11 +82,12 @@ namespace System.IO.Pipes
         /// <param name="additionalAccessRights">Combination (logical OR) of PipeAccessRights.TakeOwnership, 
         /// PipeAccessRights.AccessSystemSecurity, and PipeAccessRights.ChangePermissions</param>
         [SecuritySafeCritical]
-        private NamedPipeServerStream(String pipeName, PipeDirection direction, int maxNumberOfServerInstances,
-                PipeTransmissionMode transmissionMode, PipeOptions options, int inBufferSize, int outBufferSize,
-                HandleInheritability inheritability)
+        public NamedPipeServerStream(String pipeName, PipeDirection direction, int maxNumberOfServerInstances,
+                PipeTransmissionMode transmissionMode, PipeOptions options, int inBufferSize, int outBufferSize,PipeSecurity pipeSecurity,
+                HandleInheritability inheritability,  PipeAccessRights additionalAccessRights)
             : base(direction, transmissionMode, outBufferSize)
         {
+
             if (pipeName == null)
             {
                 throw new ArgumentNullException(nameof(pipeName));
@@ -120,8 +121,9 @@ namespace System.IO.Pipes
             }
 
             Create(pipeName, direction, maxNumberOfServerInstances, transmissionMode,
-                options, inBufferSize, outBufferSize, inheritability);
+                options, inBufferSize, outBufferSize, pipeSecurity, inheritability, additionalAccessRights);
         }
+
 
         // Create a NamedPipeServerStream from an existing server pipe handle.
         [SecuritySafeCritical]

@@ -22,8 +22,8 @@ namespace System.IO.Pipes
     {
         [SecurityCritical]
         private void Create(string pipeName, PipeDirection direction, int maxNumberOfServerInstances,
-                PipeTransmissionMode transmissionMode, PipeOptions options, int inBufferSize, int outBufferSize,
-                HandleInheritability inheritability)
+                PipeTransmissionMode transmissionMode, PipeOptions options, int inBufferSize, int outBufferSize, PipeSecurity pipeSecurity,
+                HandleInheritability inheritability, PipeAccessRights additionalAccessRights)
         {
             Debug.Assert(pipeName != null && pipeName.Length != 0, "fullPipeName is null or empty");
             Debug.Assert(direction >= PipeDirection.In && direction <= PipeDirection.InOut, "invalid pipe direction");
@@ -43,7 +43,8 @@ namespace System.IO.Pipes
 
             int openMode = ((int)direction) |
                            (maxNumberOfServerInstances == 1 ? Interop.Kernel32.FileOperations.FILE_FLAG_FIRST_PIPE_INSTANCE : 0) |
-                           (int)options;
+                           (int)options |
+                           (int)additionalAccessRights;
 
             // We automatically set the ReadMode to match the TransmissionMode.
             int pipeModes = (int)transmissionMode << 2 | (int)transmissionMode << 1;
@@ -54,7 +55,7 @@ namespace System.IO.Pipes
                 maxNumberOfServerInstances = 255;
             }
 
-            Interop.Kernel32.SECURITY_ATTRIBUTES secAttrs = PipeStream.GetSecAttrs(inheritability);
+            Interop.Kernel32.SECURITY_ATTRIBUTES secAttrs = PipeStream.GetSecAttrs(inheritability, pipeSecurity);
             SafePipeHandle handle = Interop.Kernel32.CreateNamedPipe(fullPipeName, openMode, pipeModes,
                 maxNumberOfServerInstances, outBufferSize, inBufferSize, 0, ref secAttrs);
 

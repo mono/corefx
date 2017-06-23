@@ -429,7 +429,7 @@ namespace System.IO.Pipes
         }
 
         [SecurityCritical]
-        internal static unsafe Interop.Kernel32.SECURITY_ATTRIBUTES GetSecAttrs(HandleInheritability inheritability)
+        internal static unsafe Interop.Kernel32.SECURITY_ATTRIBUTES GetSecAttrs(HandleInheritability inheritability, PipeSecurity pipeSecurity = null)
         {
             Interop.Kernel32.SECURITY_ATTRIBUTES secAttrs = default(Interop.Kernel32.SECURITY_ATTRIBUTES);
             if ((inheritability & HandleInheritability.Inheritable) != 0)
@@ -437,7 +437,17 @@ namespace System.IO.Pipes
                 secAttrs = new Interop.Kernel32.SECURITY_ATTRIBUTES();
                 secAttrs.nLength = (uint)sizeof(Interop.Kernel32.SECURITY_ATTRIBUTES);
                 secAttrs.bInheritHandle = Interop.BOOL.TRUE;
+
+ 
             }
+            byte[] securityDescriptor = null;
+            if (pipeSecurity != null)
+            securityDescriptor = pipeSecurity.GetSecurityDescriptorBinaryForm ();
+            
+            fixed (byte* securityDescriptorPtr = securityDescriptor) {
+                secAttrs.lpSecurityDescriptor = (IntPtr)securityDescriptorPtr;
+            }
+
             return secAttrs;
         }
 
