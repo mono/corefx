@@ -84,7 +84,7 @@ namespace System.IO.Pipes
         [SecuritySafeCritical]
         public NamedPipeServerStream(String pipeName, PipeDirection direction, int maxNumberOfServerInstances,
                 PipeTransmissionMode transmissionMode, PipeOptions options, int inBufferSize, int outBufferSize,PipeSecurity pipeSecurity,
-                HandleInheritability inheritability,  PipeAccessRights additionalAccessRights)
+                HandleInheritability inheritability, PipeAccessRights additionalAccessRights)
             : base(direction, transmissionMode, outBufferSize)
         {
 
