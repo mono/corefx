@@ -267,7 +267,16 @@ check_function_exists(
 
 check_function_exists(
     epoll_create1
-    HAVE_EPOLL)
+    HAVE_EPOLL_CREATE1)
+
+check_function_exists(
+    epoll_create
+    HAVE_EPOLL_CREATE)
+
+set (HAVE_EPOLL 0)
+if (HAVE_EPOLL_CREATE1 OR HAVE_EPOLL_CREATE)
+    set (HAVE_EPOLL 1)
+endif()
 
 check_function_exists(
     accept4
@@ -597,7 +606,11 @@ check_function_exists(
 # getdomainname on OSX takes an 'int' instead of a 'size_t'
 # check if compiling with 'size_t' would cause a warning
 set (PREVIOUS_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
-set (CMAKE_REQUIRED_FLAGS "-Werror -Weverything")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set (CMAKE_REQUIRED_FLAGS "-Werror -Weverything")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set (CMAKE_REQUIRED_FLAGS "-Werror -Wall")
+endif()
 check_cxx_source_compiles(
     "
     #include <unistd.h>
@@ -622,8 +635,6 @@ check_function_exists(
 set (HAVE_INOTIFY 0)
 if (HAVE_INOTIFY_INIT AND HAVE_INOTIFY_ADD_WATCH AND HAVE_INOTIFY_RM_WATCH)
     set (HAVE_INOTIFY 1)
-elseif (CMAKE_SYSTEM_NAME STREQUAL Linux)
-    message(FATAL_ERROR "Cannot find inotify functions on a Linux platform.")
 endif()
 
 check_cxx_source_compiles(

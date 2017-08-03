@@ -9,6 +9,10 @@
 #include <errno.h>
 #include <safemath/safemath.h> // remove once __builtin_*_overflow builtins are available everywhere
 
+#if !defined(__has_builtin)
+#define __has_builtin(_) 0
+#endif
+
 // Multiplies a and b into result.
 // Returns true if safe, false if overflows.
 template <typename T>

@@ -31,6 +31,10 @@ elif which clang > /dev/null 2>&1
     then
         export CC="$(which clang)"
         export CXX="$(which clang++)"
+elif which gcc > /dev/null 2>&1
+    then
+        export CC="$(which gcc)"
+        export CXX="$(which g++)"
 else
     echo "Unable to find Clang Compiler"
     exit 1

@@ -11,7 +11,7 @@ if(CMAKE_STATIC_LIB_LINK)
         message(FATAL_ERROR "!!! Cannot find libcurl static lib and System.Net.Http.Native cannot build without it. Try installing libcurl4-openssl-dev (or the appropriate package for your platform) !!!")
     endif(NOT CURL_STATIC_LIB)
     set(CURL_LIBRARIES ${CURL_STATIC_LIB})
-    add_compile_options(-DCURL_STATICLIB)
+    add_definitions(-DCURL_STATICLIB)
 endif(CMAKE_STATIC_LIB_LINK)
 
 

@@ -20,6 +20,7 @@
 #include <sys/time.h>
 #endif
 #include <errno.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -2053,6 +2054,9 @@ extern "C" Error SystemNative_GetSockOpt(
             // On Windows, SO_REUSEADDR allows the address *and* port to be reused.  It's equivalent to 
             // SO_REUSEADDR + SO_REUSEPORT other systems.  Se we only return "true" if both of those options are true.
             //
+#ifndef SO_REUSEPORT
+            return PAL_ENOTSUP;
+#else
             auto optLen = static_cast<socklen_t>(*optionLen);
 
             int err = getsockopt(fd, SOL_SOCKET, SO_REUSEADDR, optionValue, &optLen);
@@ -2070,6 +2074,7 @@ extern "C" Error SystemNative_GetSockOpt(
             assert(optLen <= static_cast<socklen_t>(*optionLen));
             *optionLen = static_cast<int32_t>(optLen);
             return PAL_SUCCESS;
+#endif
         }
     }
 
@@ -2140,6 +2145,9 @@ SystemNative_SetSockOpt(intptr_t socket, int32_t socketOptionLevel, int32_t sock
         }
         else if (socketOptionName == PAL_SO_REUSEADDR)
         {
+#ifndef SO_REUSEPORT
+            return PAL_ENOTSUP;
+#else
             //
             // On Windows, SO_REUSEADDR allows the address *and* port to be reused.  It's equivalent to 
             // SO_REUSEADDR + SO_REUSEPORT other systems. 
@@ -2150,6 +2158,7 @@ SystemNative_SetSockOpt(intptr_t socket, int32_t socketOptionLevel, int32_t sock
                 err = setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, optionValue, static_cast<socklen_t>(optionLen));
             }
             return err == 0 ? PAL_SUCCESS : SystemNative_ConvertErrorPlatformToPal(errno);
+#endif
         }
     }
 #ifdef IP_MTU_DISCOVER
@@ -2316,7 +2325,12 @@ static Error CreateSocketEventPortInner(int32_t* port)
 {
     assert(port != nullptr);
 
+#if HAVE_EPOLL_CREATE1
     int epollFd = epoll_create1(EPOLL_CLOEXEC);
+#else
+    int epollFd = epoll_create(256);
+    fcntl (epollFd, F_SETFD, FD_CLOEXEC);
+#endif
     if (epollFd == -1)
     {
         *port = -1;
