@@ -206,7 +206,7 @@ namespace System.Data
                 }
                 else
                 {
-                    ValueType vt = value as ValueType;
+                    var vt = value as System.ValueType;
 
                     // have to unbox value types.
                     if (vt != null)
