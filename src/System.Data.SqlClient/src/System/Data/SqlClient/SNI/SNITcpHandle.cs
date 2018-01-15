@@ -341,11 +341,10 @@ namespace System.Data.SqlClient.SNI
         /// </summary>
         public override void DisableSsl()
         {
-#if MONO
-            // Temp workaround - SSLStream.Dispose causes an expected behavior in mono for windows
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-#endif
+#if !MONO || MONO_FEATURE_BTLS || MONO_FEATURE_APPLETLS
+            // Temp workaround - SSLStream.Dispose causes an expected behavior with legacy ssl implementation
             _sslStream.Dispose();
+#endif
             _sslStream = null;
             _sslOverTdsStream.Dispose();
             _sslOverTdsStream = null;
