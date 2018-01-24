@@ -342,7 +342,7 @@ namespace System.Data.SqlClient.SNI
         public override void DisableSsl()
         {
 #if !MONO || MONO_FEATURE_BTLS || MONO_FEATURE_APPLETLS
-            // SSLStream.Dispose causes an expected behavior with legacy ssl implementation
+            // SSLStream.Dispose causes an unexpected behavior with legacy ssl implementation
             _sslStream.Dispose();
 #endif
             _sslStream = null;
