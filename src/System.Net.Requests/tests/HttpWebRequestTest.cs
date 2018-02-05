@@ -1239,6 +1239,7 @@ namespace System.Net.Tests
         }
 
         [ActiveIssue(19083)]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "dotnet/corefx #19083")]
         [SkipOnTargetFramework(TargetFrameworkMonikers.NetFramework, "dotnet/corefx #19083")]
         [Fact]
         public async Task Abort_BeginGetRequestStreamThenAbort_EndGetRequestStreamThrowsWebException()
