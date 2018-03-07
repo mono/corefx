@@ -36,7 +36,11 @@
 using System.Threading;
 using System.Text;
 
+#if MONO
+namespace System.Text
+#else
 namespace System.IO
+#endif
 {
     internal static class StringBuilderCache
     {
