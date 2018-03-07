@@ -4,6 +4,7 @@
 
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.Private;
 using System.Runtime.CompilerServices;
 
 namespace System.Collections.Generic
