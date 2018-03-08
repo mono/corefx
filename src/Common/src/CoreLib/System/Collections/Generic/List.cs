@@ -445,7 +445,11 @@ namespace System.Collections.Generic
                 int newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length * 2;
                 // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
                 // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
+#if MONO //in mono we don't want to add additional fields to Array
+                if ((uint)newCapacity > Array_ReferenceSources.MaxArrayLength) newCapacity = Array_ReferenceSources.MaxArrayLength;
+#else
                 if ((uint)newCapacity > Array.MaxArrayLength) newCapacity = Array.MaxArrayLength;
+#endif
                 if (newCapacity < min) newCapacity = min;
                 Capacity = newCapacity;
             }
