@@ -1081,13 +1081,21 @@ namespace System.Text.RegularExpressions
 
 #if MONO
 	// This is here so we can debug this issue: https://github.com/mono/mono/pull/7982,
-	// once that is fixed, we can remove this.
-	
-	bool enableCompiled = Environment.GetEnvironmentVariable ("MONO_REGEX_COMPILED_ENABLE") != null;
+	// once that is fixed, we can remove this.   Disabling it completely for mobile
+	// as we are not likely to debug the threading issue there.
+
+#if !MOBILE
+	static bool enableCompiled = Environment.GetEnvironmentVariable ("MONO_REGEX_COMPILED_ENABLE") != null;
+#endif
         protected bool UseOptionC()
         {
-            return enableCompiled && (roptions & RegexOptions.Compiled) != 0;
+#if MOBILE
+            return false
+#else
+	    return enableCompiled && (roptions & RegexOptions.Compiled) != 0;
         }
+#endif
+	
 #else
         protected bool UseOptionC()
         {
