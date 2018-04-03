@@ -1079,11 +1079,21 @@ namespace System.Text.RegularExpressions
             return newcached;
         }
 
+#if MONO
+	// This is here so we can debug this issue: https://github.com/mono/mono/pull/7982,
+	// once that is fixed, we can remove this.
+	
+	bool enableCompiled = Environment.GetEnvironmentVariable ("MONO_REGEX_COMPILED_ENABLE") != null;
+        protected bool UseOptionC()
+        {
+            return enableCompiled && (roptions & RegexOptions.Compiled) != 0;
+        }
+#else
         protected bool UseOptionC()
         {
             return (roptions & RegexOptions.Compiled) != 0;
         }
-
+#endif
         /*
          * True if the L option was set
          */
