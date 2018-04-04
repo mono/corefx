@@ -388,11 +388,9 @@ namespace System.Runtime.Serialization
             else
             {
                 object o = null;
-                if (type.FullName == "System.Xml.Linq.XElement")
+                if (type == typeof(System.Xml.Linq.XElement))
                 {
-                    var xnameType = type.Assembly.GetType("System.Xml.Linq.XName");
-                    var xname = xnameType.GetMethod("Get", new[] { typeof(string) }).Invoke(null, new object[] { "default" });
-                    o = Activator.CreateInstance(type.Assembly.GetType("System.Xml.Linq.XElement"), xname);
+                    o = new System.Xml.Linq.XElement("default");
                 }
                 else
                 {
