@@ -43,6 +43,7 @@
 #elif HAVE_SENDFILE_6
 #include <sys/uio.h>
 #endif
+#include <fcntl.h>
 
 #if HAVE_KQUEUE
 #if KEVENT_HAS_VOID_UDATA
@@ -2354,7 +2355,7 @@ static int32_t CreateSocketEventPortInner(int32_t* port)
     int epollFd = epoll_create1(EPOLL_CLOEXEC);
 #else
     int epollFd = epoll_create(256);
-    fcntl(epoll_fd, F_SETFD, FD_CLOEXEC);
+    fcntl(epollFd, F_SETFD, FD_CLOEXEC);
 #endif
     if (epollFd == -1)
     {
