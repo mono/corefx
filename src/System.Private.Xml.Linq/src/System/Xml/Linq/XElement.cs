@@ -1866,7 +1866,7 @@ namespace System.Xml.Linq
             return XmlConvert.ToGuid(element.Value);
         }
 
-#if MONO
+#if MONO_HYBRID_SYSTEM_XML
         static object ConvertForAssignment (object value)
         {
             var node = value as XmlNode;
