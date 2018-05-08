@@ -4,6 +4,9 @@
 
 namespace System
 {
+#if MONO
+    [Serializable]
+#endif
     public enum StringComparison
     {
         CurrentCulture = 0,

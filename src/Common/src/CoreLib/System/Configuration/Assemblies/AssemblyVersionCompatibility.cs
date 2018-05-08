@@ -4,6 +4,9 @@
 
 namespace System.Configuration.Assemblies
 {
+#if MONO
+    [Serializable]
+#endif
     public enum AssemblyVersionCompatibility
     {
         SameMachine = 1,
