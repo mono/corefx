@@ -13,9 +13,6 @@
 
 namespace System
 {
-#if MONO
-    [Serializable]
-#endif
     public enum DayOfWeek
     {
         Sunday = 0,

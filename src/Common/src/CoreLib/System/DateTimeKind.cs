@@ -7,9 +7,6 @@ namespace System
     // This enum is used to indentify DateTime instances in cases when they are known to be in local time, 
     // UTC time or if this information has not been specified or is not applicable.
 
-#if MONO
-    [Serializable]
-#endif
     public enum DateTimeKind
     {
         Unspecified = 0,
