@@ -6,9 +6,6 @@ using System;
 
 namespace System.IO
 {
-#if MONO
-    [Serializable]
-#endif
     // Matches Win32's DRIVE_XXX #defines from winbase.h
     public enum DriveType
     {

@@ -23,9 +23,6 @@
 
 namespace System
 {
-#if MONO
-    [Serializable]
-#endif
     public enum TypeCode
     {
         Empty = 0,          // Null reference
