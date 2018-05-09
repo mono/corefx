@@ -183,6 +183,9 @@ namespace System
     /// </remarks>
     [DebuggerTypeProxy(typeof(LazyDebugView<>))]
     [DebuggerDisplay("ThreadSafetyMode={Mode}, IsValueCreated={IsValueCreated}, IsValueFaulted={IsValueFaulted}, Value={ValueForDebugDisplay}")]
+#if MONO
+    [Serializable]
+#endif
     public class Lazy<T>
     {
         private static T CreateViaDefaultConstructor()

@@ -13,6 +13,7 @@
 ===========================================================*/
 
 using System.Diagnostics;
+using System.Diagnostics.Private;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
@@ -853,7 +854,7 @@ namespace System
             {
                 return (GetLatin1UnicodeCategory(c));
             }
-            return CharUnicodeInfo.GetUnicodeCategory((int)c);
+            return CharUnicodeInfo.GetUnicodeCategory(c);
         }
 
         public static UnicodeCategory GetUnicodeCategory(String s, int index)
