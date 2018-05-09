@@ -1879,11 +1879,7 @@ namespace System.Text
         [CLSCompliant(false)]
         public unsafe StringBuilder Append(char* value, int valueCount)
         {
-            if (value == null)
-            {
-                throw new NullReferenceException();
-            }
-
+            // We don't check null value as this case will throw null reference exception anyway
             if (valueCount < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(valueCount), SR.ArgumentOutOfRange_NegativeCount);
