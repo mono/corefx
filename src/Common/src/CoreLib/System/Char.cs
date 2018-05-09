@@ -854,7 +854,7 @@ namespace System
             {
                 return (GetLatin1UnicodeCategory(c));
             }
-            return CharUnicodeInfo.GetUnicodeCategory(c);
+            return CharUnicodeInfo.GetUnicodeCategory((int)c);
         }
 
         public static UnicodeCategory GetUnicodeCategory(String s, int index)
