@@ -1303,12 +1303,17 @@ namespace System
             string guidString = string.FastAllocateString(guidSize);
 
             int bytesWritten;
+            bool result;
 #if MONO
             // Span.Portable doesn't have Span(ref T[], int) constructor
             // Remove it once Mono switches to Span.Fast
-            bool result = TryFormat(new Span<char>(guidString.ToCharArray()), out bytesWritten, format);
+            unsafe 
+            {
+                fixed (char* guidStringPtr = guidString)
+                    result = TryFormat(new Span<char>(guidStringPtr, guidString.Length), out bytesWritten, format);
+            }
 #else
-            bool result = TryFormat(new Span<char>(ref guidString.GetRawStringData(), guidString.Length), out bytesWritten, format);
+            result = TryFormat(new Span<char>(ref guidString.GetRawStringData(), guidString.Length), out bytesWritten, format);
 #endif
             Debug.Assert(result && bytesWritten == guidString.Length, "Formatting guid should have succeeded.");
 
