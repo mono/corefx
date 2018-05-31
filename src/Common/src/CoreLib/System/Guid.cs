@@ -1304,7 +1304,7 @@ namespace System
 
             int bytesWritten;
 #if MONO
-            // Span.Portable doesn't have Span(ref T[], int) construct
+            // Span.Portable doesn't have Span(ref T[], int) constructor
             // Remove it once Mono switches to Span.Fast
             bool result = TryFormat(new Span<char>(guidString.ToCharArray()), out bytesWritten, format);
 #else
