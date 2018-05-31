@@ -2,6 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#ifdef _AIX
+// For getline (declare this before stdio)
+#define _GETDELIM 1
+#endif
+
 #include "pal_compiler.h"
 #include "pal_config.h"
 #include "pal_errno.h"
@@ -35,6 +40,13 @@
 #endif
 #if HAVE_INOTIFY
 #include <sys/inotify.h>
+#endif
+
+#if defined(_AIX)
+#include <alloca.h>
+// Somehow, AIX mangles the definition for this behind a C++ def
+// Redeclare it here
+extern int     getpeereid(int, uid_t *__restrict__, gid_t *__restrict__);
 #endif
 
 #if HAVE_STAT64
@@ -78,6 +90,8 @@ c_static_assert(PAL_S_IFSOCK == S_IFSOCK);
 
 // Validate that our enum for inode types is the same as what is
 // declared by the dirent.h header on the local system.
+// (AIX doesn't have dirent d_type, so none of this there)
+#if !defined(_AIX)
 c_static_assert(PAL_DT_UNKNOWN == DT_UNKNOWN);
 c_static_assert(PAL_DT_FIFO == DT_FIFO);
 c_static_assert(PAL_DT_CHR == DT_CHR);
@@ -87,6 +101,7 @@ c_static_assert(PAL_DT_REG == DT_REG);
 c_static_assert(PAL_DT_LNK == DT_LNK);
 c_static_assert(PAL_DT_SOCK == DT_SOCK);
 c_static_assert(PAL_DT_WHT == DT_WHT);
+#endif
 
 // Validate that our Lock enum value are correct for the platform
 c_static_assert(PAL_LOCK_SH == LOCK_SH);
@@ -325,7 +340,30 @@ static void ConvertDirent(const struct dirent* entry, struct DirectoryEntry* out
     // the start of the unmanaged string. Give the caller back a pointer to the
     // location of the start of the string that exists in their own byte buffer.
     outputEntry->Name = entry->d_name;
+#if defined(_AIX)
+    /* AIX has no d_type, make a substitute */
+    struct stat s;
+    stat(entry->d_name, &s);
+    if (S_ISDIR(s.st_mode)) {
+        outputEntry->InodeType = PAL_DT_DIR;
+    } else if (S_ISFIFO(s.st_mode)) {
+        outputEntry->InodeType = PAL_DT_FIFO;
+    } else if (S_ISCHR(s.st_mode)) {
+        outputEntry->InodeType = PAL_DT_CHR;
+    } else if (S_ISBLK(s.st_mode)) {
+        outputEntry->InodeType = PAL_DT_BLK;
+    } else if (S_ISREG(s.st_mode)) {
+        outputEntry->InodeType = PAL_DT_REG;
+    } else if (S_ISLNK(s.st_mode)) {
+        outputEntry->InodeType = PAL_DT_LNK;
+    } else if (S_ISSOCK(s.st_mode)) {
+        outputEntry->InodeType = PAL_DT_SOCK;
+    } else {
+        outputEntry->InodeType = PAL_DT_UNKNOWN;
+    }
+#else
     outputEntry->InodeType = (int32_t)entry->d_type;
+#endif
 
 #if HAVE_DIRENT_NAME_LEN
     outputEntry->NameLength = entry->d_namlen;
