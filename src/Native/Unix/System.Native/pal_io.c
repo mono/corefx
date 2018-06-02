@@ -1001,7 +1001,11 @@ int32_t SystemNative_Read(intptr_t fd, void* buffer, int32_t bufferSize)
     }
 
     ssize_t count;
+#if !MONO
     while ((count = read(ToFileDescriptor(fd), buffer, (uint32_t)bufferSize)) < 0 && errno == EINTR);
+#else // The Mono thread abort process can cause an EINTR here that needs to be handled
+    count = read(ToFileDescriptor(fd), buffer, (uint32_t)bufferSize);
+#endif
 
     assert(count >= -1 && count <= bufferSize);
     return (int32_t)count;
