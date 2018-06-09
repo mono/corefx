@@ -33,7 +33,11 @@ namespace Internal.Cryptography.Pal.AnyOS
             const int ArbitraryStackLimit = 256;
             Span<byte> tmp = stackalloc byte[ArbitraryStackLimit];
             // Use stackalloc 0 so data can later hold a slice of tmp.
+#if __MonoCS__
+            ReadOnlySpan<byte> data = new byte[0];
+#else
             ReadOnlySpan<byte> data = stackalloc byte[0];
+#endif            
             byte[] poolBytes = null;
 
             try
