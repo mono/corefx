@@ -522,7 +522,7 @@ namespace System
         {
             public static unsafe uint Exponent(double d)
             {
-                return (*((uint*)&d + 1) >> 20) & 0x000007ff;
+                return (*((uint*)&d + (BitConverter.IsLittleEndian ? 1 : 0)) >> 20) & 0x000007ff;
             }
 
             public static unsafe ulong Mantissa(double d)
@@ -532,7 +532,7 @@ namespace System
 
             public static unsafe bool Sign(double d)
             {
-                return (*((uint*)&d + 1) >> 31) != 0;
+                return (*((uint*)&d + (BitConverter.IsLittleEndian ? 1 : 0)) >> 31) != 0;
             }
         }
     }
