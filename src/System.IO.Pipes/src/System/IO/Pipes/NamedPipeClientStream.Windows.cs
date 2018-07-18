@@ -16,6 +16,10 @@ namespace System.IO.Pipes
     /// </summary>
     public sealed partial class NamedPipeClientStream : PipeStream
     {
+#if MONO
+        int _access = 0;
+#endif
+
         // Waits for a pipe instance to become available. This method may return before WaitForConnection is called
         // on the server end, but WaitForConnection will not return until we have returned.  Any data written to the
         // pipe by us after we have connected but before the server has called WaitForConnection will be available
@@ -34,7 +38,11 @@ namespace System.IO.Pipes
                 _pipeFlags |= (((int)_impersonationLevel - 1) << 16);
             }
 
+#if MONO
+            int access = _access;
+#else
             int access = 0;
+#endif
             if ((PipeDirection.In & _direction) != 0)
             {
                 access |= Interop.Kernel32.GenericOperations.GENERIC_READ;
