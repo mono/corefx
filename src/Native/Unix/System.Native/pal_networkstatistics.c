@@ -261,7 +261,7 @@ int32_t SystemNative_GetActiveTcpConnectionInfos(struct NativeTcpConnectionInfor
     assert(infoCount != NULL);
 
     size_t estimatedSize = GetEstimatedTcpPcbSize();
-    uint8_t* buffer = malloc(estimatedSize * sizeof(uint8_t));
+    uint8_t* buffer = (uint8_t*)malloc(estimatedSize * sizeof(uint8_t));
     if (buffer == NULL)
     {
         errno = ENOMEM;
@@ -316,15 +316,15 @@ int32_t SystemNative_GetActiveTcpConnectionInfos(struct NativeTcpConnectionInfor
         uint8_t vflag = in_pcb.inp_vflag; // INP_IPV4 or INP_IPV6
         if ((vflag & INP_IPV4) == INP_IPV4)
         {
-            memcpy_s(&ntci->LocalEndPoint.AddressBytes, sizeof_member(struct IPEndPointInfo, AddressBytes), &in_pcb.inp_laddr.s_addr, 4);
-            memcpy_s(&ntci->RemoteEndPoint.AddressBytes, sizeof_member(struct IPEndPointInfo, AddressBytes), &in_pcb.inp_faddr.s_addr, 4);
+            memcpy_s(&ntci->LocalEndPoint.AddressBytes, sizeof_member(IPEndPointInfo, AddressBytes), &in_pcb.inp_laddr.s_addr, 4);
+            memcpy_s(&ntci->RemoteEndPoint.AddressBytes, sizeof_member(IPEndPointInfo, AddressBytes), &in_pcb.inp_faddr.s_addr, 4);
             ntci->LocalEndPoint.NumAddressBytes = 4;
             ntci->RemoteEndPoint.NumAddressBytes = 4;
         }
         else
         {
-            memcpy_s(&ntci->LocalEndPoint.AddressBytes, sizeof_member(struct IPEndPointInfo, AddressBytes), &in_pcb.in6p_laddr.s6_addr, 16);
-            memcpy_s(&ntci->RemoteEndPoint.AddressBytes, sizeof_member(struct IPEndPointInfo, AddressBytes), &in_pcb.in6p_faddr.s6_addr, 16);
+            memcpy_s(&ntci->LocalEndPoint.AddressBytes, sizeof_member(IPEndPointInfo, AddressBytes), &in_pcb.in6p_laddr.s6_addr, 16);
+            memcpy_s(&ntci->RemoteEndPoint.AddressBytes, sizeof_member(IPEndPointInfo, AddressBytes), &in_pcb.in6p_faddr.s6_addr, 16);
             ntci->LocalEndPoint.NumAddressBytes = 16;
             ntci->RemoteEndPoint.NumAddressBytes = 16;
         }
@@ -355,13 +355,13 @@ static size_t GetEstimatedUdpPcbSize()
     return oldlenp;
 }
 
-int32_t SystemNative_GetActiveUdpListeners(struct IPEndPointInfo* infos, int32_t* infoCount)
+int32_t SystemNative_GetActiveUdpListeners(IPEndPointInfo* infos, int32_t* infoCount)
 {
     assert(infos != NULL);
     assert(infoCount != NULL);
 
     size_t estimatedSize = GetEstimatedUdpPcbSize();
-    uint8_t* buffer = malloc(estimatedSize * sizeof(uint8_t));
+    uint8_t* buffer = (uint8_t*)malloc(estimatedSize * sizeof(uint8_t));
     if (buffer == NULL)
     {
         errno = ENOMEM;
@@ -376,7 +376,7 @@ int32_t SystemNative_GetActiveUdpListeners(struct IPEndPointInfo* infos, int32_t
         free(buffer);
         size_t tmpEstimatedSize;
         if (!multiply_s(estimatedSize, (size_t)2, &tmpEstimatedSize) ||
-            (buffer = malloc(estimatedSize * sizeof(uint8_t))) == NULL)
+            (buffer = (uint8_t*)malloc(estimatedSize * sizeof(uint8_t))) == NULL)
         {
             errno = ENOMEM;
             return -1;
@@ -404,17 +404,17 @@ int32_t SystemNative_GetActiveUdpListeners(struct IPEndPointInfo* infos, int32_t
         connectionIndex++;
         struct xinpcb* head_xinpcb = (struct xinpcb*)xHeadPtr;
         in_pcb = head_xinpcb->xi_inp;
-        struct IPEndPointInfo* iepi = &infos[connectionIndex];
+        IPEndPointInfo* iepi = &infos[connectionIndex];
 
         uint8_t vflag = in_pcb.inp_vflag; // INP_IPV4 or INP_IPV6
         if ((vflag & INP_IPV4) == INP_IPV4)
         {
-            memcpy_s(iepi->AddressBytes, sizeof_member(struct IPEndPointInfo, AddressBytes), &in_pcb.inp_laddr.s_addr, 4);
+            memcpy_s(iepi->AddressBytes, sizeof_member(IPEndPointInfo, AddressBytes), &in_pcb.inp_laddr.s_addr, 4);
             iepi->NumAddressBytes = 4;
         }
         else
         {
-            memcpy_s(iepi->AddressBytes, sizeof_member(struct IPEndPointInfo, AddressBytes), &in_pcb.in6p_laddr.s6_addr, 16);
+            memcpy_s(iepi->AddressBytes, sizeof_member(IPEndPointInfo, AddressBytes), &in_pcb.in6p_laddr.s6_addr, 16);
             iepi->NumAddressBytes = 16;
         }
 
@@ -445,7 +445,7 @@ int32_t SystemNative_GetNativeIPInterfaceStatistics(char* interfaceName, struct 
         return -1;
     }
 
-    uint8_t* buffer = malloc(len * sizeof(uint8_t));
+    uint8_t* buffer = (uint8_t*)malloc(len * sizeof(uint8_t));
     if (buffer == NULL)
     {
         errno = ENOMEM;
@@ -503,7 +503,7 @@ int32_t SystemNative_GetNumRoutes()
         return -1;
     }
 
-    uint8_t* buffer = malloc(len * sizeof(uint8_t));
+    uint8_t* buffer = (uint8_t*)malloc(len * sizeof(uint8_t));
     if (buffer == NULL)
     {
         errno = ENOMEM;
