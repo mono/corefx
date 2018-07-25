@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace System.Reflection
 {
+#if MONO
+    [Serializable]
+#endif
     public abstract partial class MemberInfo : ICustomAttributeProvider
     {
         protected MemberInfo() { }
@@ -39,7 +42,14 @@ namespace System.Reflection
         public virtual IEnumerable<CustomAttributeData> CustomAttributes => GetCustomAttributesData();
         public virtual IList<CustomAttributeData> GetCustomAttributesData() { throw NotImplemented.ByDesign; }
 
+#if MONO
+        public virtual extern int MetadataToken {
+            [System.Runtime.CompilerServices.MethodImplAttribute (System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+            get;
+        }
+#else
         public virtual int MetadataToken { get { throw new InvalidOperationException(); } }
+#endif
 
         public override bool Equals(object obj) => base.Equals(obj);
         public override int GetHashCode() => base.GetHashCode();
