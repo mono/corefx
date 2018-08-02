@@ -77,9 +77,8 @@ namespace System.IO.Tests
         }
 
         [ConditionalFact(nameof(isNotHFS))] // OSX HFS driver format does not support millisec granularity
-        [PlatformSpecific(TestPlatforms.Linux)] // Windows tested below, and OSX does not currently support millisec granularity
         [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Seems to require CoreFX DriveInfo")]
-        public void TimesIncludeMillisecondPart_Unix()
+        public void TimesIncludeMillisecondPart()
         {
             T item = GetExistingItem();
             Assert.All(TimeFunctions(), (function) =>
@@ -139,11 +138,7 @@ namespace System.IO.Tests
         }
 
         [ConditionalFact(nameof(isHFS))]
-        // OSX does not currently support millisec granularity: use this test as a canary to flag
-        // if this ever changes so we can enable the actual test
-        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Mono actually supports milliseconds on MacOS")]
-        [PlatformSpecific(TestPlatforms.OSX)]
-        public void TimesIncludeMillisecondPart_OSX()
+        public void TimesIncludeMillisecondPart_HFS()
         {
             T item = GetExistingItem();
             // OSX HFS driver format does not support millisec granularity
