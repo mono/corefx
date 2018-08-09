@@ -101,7 +101,11 @@ namespace System.Reflection.Tests
             foreach (int length in arraylength)
             {
                 // Create big Array with  elements
+#if MONO
+                Assert.Throws<OverflowException>(() => (object[])constructors[0].Invoke(BindingFlags.CreateInstance | BindingFlags.DoNotWrapExceptions, null, new object[] { length }, null));
+#else                
                 Assert.Throws<OverflowException>(() => (object[])constructors[0].Invoke(new object[] { length }));
+#endif
             }
         }
 
