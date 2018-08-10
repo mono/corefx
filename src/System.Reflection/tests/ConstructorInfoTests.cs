@@ -100,7 +100,7 @@ namespace System.Reflection.Tests
             // Try to invoke Array ctors with different lengths
             foreach (int length in arraylength)
             {
-                // Create big Array with  elements            
+                // Create big Array with  elements
                 Assert.Throws<OverflowException>(() => (object[])constructors[0].Invoke(new object[] { length }));
             }
         }
