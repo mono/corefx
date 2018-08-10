@@ -92,7 +92,7 @@ namespace System.Reflection.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip="Mono issue #10024")]
         public void Invoke_OneDimensionalArray_NegativeLengths_ThrowsOverflowException()
         {
             ConstructorInfo[] constructors = GetConstructors(typeof(object[]));
@@ -100,12 +100,8 @@ namespace System.Reflection.Tests
             // Try to invoke Array ctors with different lengths
             foreach (int length in arraylength)
             {
-                // Create big Array with  elements
-#if MONO
-                Assert.Throws<OverflowException>(() => (object[])constructors[0].Invoke(BindingFlags.CreateInstance | BindingFlags.DoNotWrapExceptions, null, new object[] { length }, null));
-#else                
+                // Create big Array with  elements            
                 Assert.Throws<OverflowException>(() => (object[])constructors[0].Invoke(new object[] { length }));
-#endif
             }
         }
 
