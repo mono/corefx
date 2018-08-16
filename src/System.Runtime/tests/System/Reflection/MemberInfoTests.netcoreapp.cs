@@ -337,7 +337,7 @@ namespace System.Reflection.Tests
             );
         }
 
-        [Fact]
+        [Fact(Skip="Mono issue #10159")]
         [PlatformSpecific(TestPlatforms.Windows)]
         public static void HasSameMetadataDefinitionAs_CornerCase_CLSIDConstructor()
         {
