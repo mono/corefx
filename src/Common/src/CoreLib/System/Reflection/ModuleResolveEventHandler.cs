@@ -4,6 +4,9 @@
 
 namespace System.Reflection
 {
+#if MONO
+	[Serializable]
+#endif	
     public delegate Module ModuleResolveEventHandler(object sender, ResolveEventArgs e);
 }
 
