@@ -98,8 +98,15 @@ namespace Microsoft.Win32
             FlushCore();
         }
 
+#if MONO
+        partial void CloseCore();
+#endif
+
         public void Close()
         {
+#if MONO
+            CloseCore();
+#endif
             Dispose();
         }
 
