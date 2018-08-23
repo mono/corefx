@@ -33,6 +33,10 @@ namespace Microsoft.Win32
         /// <summary>Current Config Root Key. This is where current configuration information is stored.</summary>
         public static readonly RegistryKey CurrentConfig = RegistryKey.OpenBaseKey(RegistryHive.CurrentConfig, RegistryView.Default);
 
+#if MONO
+        public static readonly RegistryKey DynData = RegistryKey.OpenBaseKey(RegistryHive.DynData, RegistryView.Default);
+#endif
+
         public static object GetValue(string keyName, string valueName, object defaultValue)
         {
             string subKeyName;
