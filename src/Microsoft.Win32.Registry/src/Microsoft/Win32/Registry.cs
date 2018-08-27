@@ -13,7 +13,7 @@ namespace Microsoft.Win32
 #else
     internal
 #endif
-    static class Registry
+    static partial class Registry
     {
         /// <summary>Current User Key. This key should be used as the root for all user specific settings.</summary>
         public static readonly RegistryKey CurrentUser = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default);
@@ -32,10 +32,6 @@ namespace Microsoft.Win32
 
         /// <summary>Current Config Root Key. This is where current configuration information is stored.</summary>
         public static readonly RegistryKey CurrentConfig = RegistryKey.OpenBaseKey(RegistryHive.CurrentConfig, RegistryView.Default);
-
-#if MONO
-        public static readonly RegistryKey DynData = RegistryKey.OpenBaseKey(RegistryHive.DynData, RegistryView.Default);
-#endif
 
         public static object GetValue(string keyName, string valueName, object defaultValue)
         {
