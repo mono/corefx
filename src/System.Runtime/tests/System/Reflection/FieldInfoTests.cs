@@ -9,7 +9,11 @@ using Xunit;
 
 namespace System.Reflection.Tests
 {
+#if MONO
+    public partial class FieldInfoTests
+#else   
     public class FieldInfoTests
+#endif
     {
         [Theory]
         [InlineData("nonstatic_strField", "nonstatic_strField", true)]
@@ -25,7 +29,7 @@ namespace System.Reflection.Tests
             Assert.NotEqual(expected, info1 != info2);
         }
 
-        [Fact]
+        [Fact(Skip="It's CAS-related and not actual in Mono")]
         public static void Test_SecurityAttributes()
         {
             FieldInfo info = GetField("intFieldStatic");
