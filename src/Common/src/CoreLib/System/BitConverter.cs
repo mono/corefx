@@ -19,7 +19,7 @@ namespace System
         // This field indicates the "endianess" of the architecture.
         // The value is set to true if the architecture is
         // little endian; false if it is big endian.
-#if BIGENDIAN || LINUX_NET_4_X
+#if COULD_BE_BIGENDIAN
         public static readonly bool IsLittleEndian = IsLE();
 
         private static unsafe bool IsLE()
@@ -31,7 +31,7 @@ namespace System
             return *(byte*)&d == 0;
         }
 #else
-        public static readonly bool IsLittleEndian = true;
+        public static readonly bool IsLittleEndian; // true is set by runtime to avoid generating static ctor
 #endif
 
         // Converts a Boolean into an array of bytes with length one.
