@@ -19,10 +19,23 @@ namespace System
         // This field indicates the "endianess" of the architecture.
         // The value is set to true if the architecture is
         // little endian; false if it is big endian.
+#if MONO
+		[Intrinsic]
+		public static readonly bool IsLittleEndian;
+
+		static BitConverter () {
+			unsafe {
+				ushort i = 0x1234;
+				byte *b = (byte*)&i;
+				IsLittleEndian = (*b == 0x34);
+			}
+		}
+#else
 #if BIGENDIAN
-        public static readonly bool IsLittleEndian /* = false */;
+        public static bool IsLittleEndian;
 #else
         public static readonly bool IsLittleEndian = true;
+#endif
 #endif
 
         // Converts a Boolean into an array of bytes with length one.
