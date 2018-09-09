@@ -20,7 +20,7 @@ namespace System
         // The value is set to true if the architecture is
         // little endian; false if it is big endian.
 #if BIGENDIAN || MONO
-        public static readonly bool IsLittleEndian // value is set by runtime to avoid generating static ctor
+        public static readonly bool IsLittleEndian; // value is set by runtime to avoid generating static ctor
 #else
         public static readonly bool IsLittleEndian = true;
 #endif
