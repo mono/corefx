@@ -21,7 +21,7 @@ namespace System
         // little endian; false if it is big endian.
 #if !MONO
 #if BIGENDIAN
-        public static bool IsLittleEndian;
+        public static readonly bool IsLittleEndian /* = false */;
 #else
         public static readonly bool IsLittleEndian = true;
 #endif
