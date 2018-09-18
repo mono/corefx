@@ -4,9 +4,15 @@
 
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+#if MONO
+using System.Runtime.InteropServices;
+#endif
 
 namespace System.Reflection
 {
+#if MONO
+    [StructLayout (LayoutKind.Sequential)]
+#endif
     public class ParameterInfo : ICustomAttributeProvider, IObjectReference
     {
         protected ParameterInfo() { }
