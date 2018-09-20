@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 namespace System.Reflection
 {
 #if MONO
+    [Serializable]
     [StructLayout (LayoutKind.Sequential)]
 #endif
     public class ParameterInfo : ICustomAttributeProvider, IObjectReference
