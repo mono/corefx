@@ -63,6 +63,7 @@ namespace System.IO.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono]
         public void DerivedMemoryStream_ReadWriteSpanCalled_ReadWriteArrayUsed()
         {
             var s = new ReadWriteOverridingMemoryStream();
