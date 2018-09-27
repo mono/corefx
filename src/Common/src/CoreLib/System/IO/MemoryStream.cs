@@ -18,6 +18,9 @@ namespace System.IO
     // from an unsigned byte array, or you can create an empty one.  Empty 
     // memory streams are resizable, while ones created with a byte array provide
     // a stream "view" of the data.
+#if MONO
+    [Serializable]
+#endif
     public class MemoryStream : Stream
     {
         private byte[] _buffer;    // Either allocated internally or externally.
@@ -165,10 +168,18 @@ namespace System.IO
 
                 // We want to expand the array up to Array.MaxByteArrayLength
                 // And we want to give the user the value that they asked for
+
+#if MONO //in Mono we don't want to add additional fields to Array
+                if ((uint)(_capacity * 2) > Array_ReferenceSources.MaxByteArrayLength)
+                {
+                    newCapacity = value > Array_ReferenceSources.MaxByteArrayLength ? value : Array_ReferenceSources.MaxByteArrayLength;
+                }
+#else
                 if ((uint)(_capacity * 2) > Array.MaxByteArrayLength)
                 {
                     newCapacity = value > Array.MaxByteArrayLength ? value : Array.MaxByteArrayLength;
                 }
+#endif
 
                 Capacity = newCapacity;
                 return true;
@@ -223,6 +234,14 @@ namespace System.IO
         {
             return _buffer;
         }
+#if MONO // Mono's ResourceWriter from referencesource still uses this method
+        internal void InternalGetOriginAndLength(out int origin, out int length)
+        {
+            if (!_isOpen) __Error.StreamIsClosed();
+            origin = _origin;
+            length = _length;
+        }
+#endif
 
         // PERF: True cursor position, we don't need _origin for direct access
         internal int InternalGetPosition()
