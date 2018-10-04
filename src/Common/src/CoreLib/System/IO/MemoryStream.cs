@@ -34,7 +34,9 @@ namespace System.IO
         private bool _writable;    // Can user write to this stream?
         private bool _exposable;   // Whether the array can be returned to the user.
         private bool _isOpen;      // Is this stream open or closed?
-
+#if MONO
+        [NonSerialized]
+#endif
         private Task<int> _lastReadTask; // The last successful task returned from ReadAsync
 
         private const int MemStreamMaxLength = int.MaxValue;

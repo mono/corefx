@@ -232,7 +232,7 @@ namespace System.IO.Tests
                 canWriteFunc: () => false
             );
 
-            Assert.Throws<NotSupportedException>(() => memoryStream.CopyTo(readOnlyStream, 1));
+            Assert.ThrowsAsync<NotSupportedException>( async () => memoryStream.CopyTo(readOnlyStream, 1));
         }
 
         [Theory]
