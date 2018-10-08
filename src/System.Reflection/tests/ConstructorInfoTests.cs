@@ -92,7 +92,7 @@ namespace System.Reflection.Tests
             }
         }
 
-        [Fact(Skip="Mono issue #10024")]
+        [Fact]
         public void Invoke_OneDimensionalArray_NegativeLengths_ThrowsOverflowException()
         {
             ConstructorInfo[] constructors = GetConstructors(typeof(object[]));
