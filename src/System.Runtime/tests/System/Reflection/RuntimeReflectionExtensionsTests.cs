@@ -9,7 +9,11 @@ using Xunit;
 
 namespace System.Reflection.Tests
 {
+#if MONO
+    public class RuntimeRuntimeReflectionExtensionsTests
+#else
     public class RuntimeReflectionExtensionsTests
+#endif
     {
         [Fact]
         public void GetMethodInfo()

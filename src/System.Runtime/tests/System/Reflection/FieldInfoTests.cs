@@ -9,7 +9,11 @@ using Xunit;
 
 namespace System.Reflection.Tests
 {
+#if MONO
+    public class RuntimeFieldInfoTests
+#else
     public class FieldInfoTests
+#endif
     {
         [Theory]
         [InlineData("nonstatic_strField", "nonstatic_strField", true)]

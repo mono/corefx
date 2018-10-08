@@ -11,7 +11,11 @@ using Xunit;
 
 namespace System.Reflection.Tests
 {
+#if MONO
+    public class RuntimeMemberInfoTests
+#else
     public class MemberInfoTests
+#endif
     {
         [Fact]
         public static void TestReflectedType()

@@ -11,7 +11,11 @@ using Xunit;
 
 namespace System.Reflection.Tests
 {
+#if MONO
+    public static class RuntimeParameterInfoTests
+#else
     public static class ParameterInfoTests
+#endif
     {
         [Fact]
         public static void RawDefaultValue()

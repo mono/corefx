@@ -9,7 +9,11 @@ using Xunit;
 
 namespace System.Reflection.Tests
 {
+#if MONO
+    public static class RuntimeEventInfoTests
+#else    
     public static class EventInfoTests
+#endif    
     {
         public static IEnumerable<object[]> Equality_TestData()
         {
