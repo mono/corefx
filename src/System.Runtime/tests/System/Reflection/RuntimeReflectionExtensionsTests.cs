@@ -18,7 +18,11 @@ namespace System.Reflection.Tests
         [Fact]
         public void GetMethodInfo()
         {
+#if MONO
+            Assert.Equal(typeof(RuntimeRuntimeReflectionExtensionsTests).GetMethod("GetMethodInfo"), ((Action)GetMethodInfo).GetMethodInfo());
+#else
             Assert.Equal(typeof(RuntimeReflectionExtensionsTests).GetMethod("GetMethodInfo"), ((Action)GetMethodInfo).GetMethodInfo());
+#endif
         }
 
         [Fact]

@@ -42,7 +42,11 @@ namespace System.Reflection.Tests
         // Helper method to get field from Type type
         private static FieldInfo GetField(string fieldName)
         {
+#if MONO
+            Type t = typeof(RuntimeFieldInfoTests);
+#else
             Type t = typeof(FieldInfoTests);
+#endif           
             TypeInfo ti = t.GetTypeInfo();
             IEnumerator<FieldInfo> alldefinedFields = ti.DeclaredFields.GetEnumerator();
             FieldInfo fi = null, found = null;

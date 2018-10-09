@@ -13,10 +13,13 @@ namespace System.Reflection.Tests
 {
 #if MONO
     public static class RuntimeParameterInfoTests
+    {
+        static Type testClassType = typeof (RuntimeParameterInfoTests);
 #else
     public static class ParameterInfoTests
-#endif
     {
+        static Type testClassType = typeof (ParameterInfoTests);
+#endif
         [Fact]
         public static void RawDefaultValue()
         {
@@ -30,7 +33,7 @@ namespace System.Reflection.Tests
         [Fact]
         public static void RawDefaultValueFromAttribute()
         {
-            MethodInfo m = GetMethod(typeof(ParameterInfoTests), "Foo2");
+            MethodInfo m = GetMethod(testClassType, "Foo2");
             ParameterInfo p = m.GetParameters()[0];
             object cooked = p.DefaultValue;
             object raw = p.RawDefaultValue;
@@ -42,7 +45,7 @@ namespace System.Reflection.Tests
         [Fact]
         public static void RawDefaultValue_MetadataTrumpsAttribute()
         {
-            MethodInfo m = GetMethod(typeof(ParameterInfoTests), "Foo3");
+            MethodInfo m = GetMethod(testClassType, "Foo3");
             ParameterInfo p = m.GetParameters()[0];
             object cooked = p.DefaultValue;
             object raw = p.RawDefaultValue;
