@@ -121,7 +121,11 @@ namespace System.Reflection.Tests
         }
     }
 
+#if MONO
+    public class RuntimeTypeInfoTests
+#else
     public class TypeInfoTests
+#endif
     {
         public TypeInfo TestTypeInfo => typeof(TestType).GetTypeInfo();
 

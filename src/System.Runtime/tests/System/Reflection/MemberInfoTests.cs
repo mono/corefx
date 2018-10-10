@@ -11,7 +11,11 @@ using Xunit;
 
 namespace System.Reflection.Tests
 {
+#if MONO
+    public class RuntimeMemberInfoTests
+#else
     public class MemberInfoTests
+#endif
     {
         [Fact]
         public static void TestReflectedType()
@@ -156,7 +160,11 @@ namespace System.Reflection.Tests
         [Fact]
         public void TestGetCustomAttributesData()
         {
+#if MONO
+            MemberInfo[] m = typeof(RuntimeMemberInfoTests).GetMember("SampleClass");
+#else
             MemberInfo[] m = typeof(MemberInfoTests).GetMember("SampleClass");
+#endif
             Assert.Equal(1, m.Count());
             foreach(CustomAttributeData cad in m[0].GetCustomAttributesData())
             {
@@ -178,7 +186,11 @@ namespace System.Reflection.Tests
         public static IEnumerable<object[]> EqualityOperator_TestData()
         {
             yield return new object[] { typeof(SampleClass) };
+#if MONO
+            yield return new object[] { new RuntimeMemberInfoTests().GetType() };
+#else
             yield return new object[] { new MemberInfoTests().GetType() };
+#endif
             yield return new object[] { typeof(int) };
             yield return new object[] { typeof(Dictionary<,>) };
         }
