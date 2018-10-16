@@ -28,7 +28,9 @@ namespace System
     };
 
     [Serializable]
+#if !MONO
     [System.Runtime.CompilerServices.TypeForwardedFrom("System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")]
+#endif
     public sealed partial class TimeZoneInfo : IEquatable<TimeZoneInfo>, ISerializable, IDeserializationCallback
     {
         private enum TimeZoneInfoResult
