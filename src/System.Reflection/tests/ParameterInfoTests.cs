@@ -97,7 +97,7 @@ namespace System.Reflection.Tests
             Assert.Equal<int>((int)raw, (int)BindingFlags.DeclaredOnly);
         }
 
-        [Fact]
+        [Fact(Skip="Mono issue #11051")]
         public void RawDefaultValueFromAttribute()
         {
             ParameterInfo p = GetParameterInfo(typeof(ParameterInfoMetadata), "Foo2", 0);
