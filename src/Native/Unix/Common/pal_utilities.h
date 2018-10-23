@@ -187,6 +187,8 @@ static inline bool CheckInterrupted(TInt result)
 {
     return result < 0 && errno == EINTR;
 }
+#else
+#define CheckInterrupted(result) (result) < 0 && errno == EINTR
 
 #endif // __cplusplus
 

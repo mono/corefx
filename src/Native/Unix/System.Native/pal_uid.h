@@ -14,7 +14,7 @@ BEGIN_EXTERN_C
 /**
 * Passwd struct
 */
-struct Passwd
+struct _Passwd
 {
     char* Name;
     char* Password;
@@ -24,6 +24,8 @@ struct Passwd
     char* HomeDirectory;
     char* Shell;
 };
+
+typedef struct _Passwd Passwd;
 
 /**
 * Gets a password structure for the given uid.
