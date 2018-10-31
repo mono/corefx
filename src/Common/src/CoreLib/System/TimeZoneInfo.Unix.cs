@@ -615,6 +615,9 @@ namespace System
 
         private static string GetTimeZoneDirectory()
         {
+#if MONO && MOBILE
+            return GetTimeZoneDirectoryMobile();
+#else
             string tzDirectory = Environment.GetEnvironmentVariable(TimeZoneDirectoryEnvironmentVariable);
 
             if (tzDirectory == null)
@@ -627,6 +630,7 @@ namespace System
             }
 
             return tzDirectory;
+#endif
         }
 
         /// <summary>
