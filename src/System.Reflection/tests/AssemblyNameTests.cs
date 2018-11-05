@@ -544,6 +544,7 @@ namespace System.Reflection.Tests
         }
 
         [Fact]
+        [ActiveIssue(33249)]
         [SkipOnTargetFramework(
             TargetFrameworkMonikers.NetFramework,
             ".NET Core behavior differs from .NET Framework since it does not want to replicate some bugs")]
