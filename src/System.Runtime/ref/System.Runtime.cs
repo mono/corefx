@@ -979,6 +979,33 @@ namespace System
         public static bool TryParse(string s, out System.Decimal result) { throw null; }
         public static bool TryParse(string s, System.Globalization.NumberStyles style, System.IFormatProvider provider, out System.Decimal result) { throw null; }
     }
+    public readonly partial struct Index : System.IEquatable<System.Index>
+    {
+        private readonly int _dummyPrimitive;
+        public Index(int value, bool fromEnd) { throw null; }
+        public int Value { get { throw null; } }
+        public bool FromEnd { get { throw null; } }
+        public override bool Equals(object value) { throw null; }
+        public bool Equals(Index other) { throw null; }
+        public override int GetHashCode() { throw null; }
+        public override string ToString() { throw null; }
+        public static implicit operator Index(int value) { throw null; }
+    }
+    public readonly partial struct Range : System.IEquatable<System.Range>
+    {
+        private readonly int _dummyPrimitive;
+        public Index Start { get { throw null; } }
+        public Index End { get { throw null; } }
+        public override bool Equals(object value) { throw null; }
+        public bool Equals(Range other) { throw null; }
+        public override int GetHashCode() { throw null; }
+        public override string ToString() { throw null; }
+        public static Range Create(Index start, Index end) { throw null; }
+        public static Range FromStart(Index start) { throw null; }
+        public static Range ToEnd(Index end) { throw null; }
+        public static Range All() { throw null; }
+    }
+
     public abstract partial class Delegate : System.ICloneable, System.Runtime.Serialization.ISerializable
     {
         protected Delegate(object target, string method) { }
@@ -1972,6 +1999,8 @@ namespace System
         public static System.ReadOnlySpan<T> Empty { get { throw null; } }
         public bool IsEmpty { get { throw null; } }
         public ref readonly T this[int index] { get { throw null; } }
+        public ref readonly T this[Index index] { get { throw null; } }
+        public ReadOnlySpan<T> this[Range range] { get { throw null; } }
         public int Length { get { throw null; } }
         public void CopyTo(System.Span<T> destination) { }
         [System.ComponentModel.EditorBrowsableAttribute((System.ComponentModel.EditorBrowsableState)(1))]
@@ -2174,6 +2203,8 @@ namespace System
         public static System.Span<T> Empty { get { throw null; } }
         public bool IsEmpty { get { throw null; } }
         public ref T this[int index] { get { throw null; } }
+        public ref T this[Index index] { get { throw null; } }
+        public Span<T> this[Range range] { get { throw null; } }
         public int Length { get { throw null; } }
         public void Clear() { }
         public void CopyTo(System.Span<T> destination) { }
