@@ -14,7 +14,7 @@ namespace System.Drawing
 #if !MONO
     [System.Runtime.CompilerServices.TypeForwardedFrom("System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
 #endif
-#if !MONOTOUCH && !MONOMAC && FEATURE_TYPECONVERTER
+#if FEATURE_TYPECONVERTER
     [TypeConverter(typeof(ColorConverter))]
     [Editor ("System.Drawing.Design.ColorEditor, " + Consts.AssemblySystem_Drawing_Design, typeof (System.Drawing.Design.UITypeEditor))]
 #endif
