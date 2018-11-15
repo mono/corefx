@@ -12,15 +12,6 @@ namespace System
     // The idea is to stay with static helper methods and strings
     internal static partial class IPv6AddressHelper
     {
-        // fields
-#if !MONO
-        private const int NumberOfLabels = 8;
-#endif
-        // Lower case hex, no leading zeros
-        private const string CanonicalNumberFormat = "{0:x}";
-        private const string EmbeddedIPv4Format = ":{0:d}.{1:d}.{2:d}.{3:d}";
-        private const char Separator = ':';
-
         // methods
 
         internal static string ParseCanonicalName(string str, int start, ref bool isLoopback, ref string scopeId)

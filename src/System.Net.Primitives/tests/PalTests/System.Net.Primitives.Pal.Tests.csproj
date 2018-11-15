@@ -1,6 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), dir.props))\dir.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{7860A11A-1841-4416-8A30-28EEEB42C6BB}</ProjectGuid>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -39,8 +37,14 @@
     <Compile Include="..\..\src\System\Net\IPv4AddressHelper.cs">
       <Link>ProductionCode\System\Net\IPv4AddressHelper.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\System\Net\IPv4AddressHelper.Common.cs">
+      <Link>ProductionCode\System\Net\IPv4AddressHelper.Common.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\System\Net\IPv6AddressHelper.cs">
       <Link>ProductionCode\System\Net\IPv6AddressHelper.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\System\Net\IPv6AddressHelper.Common.cs">
+      <Link>ProductionCode\System\Net\IPv6AddressHelper.Common.cs</Link>
     </Compile>
     <Compile Include="..\..\src\System\Net\IPEndPoint.cs">
       <Link>ProductionCode\System\Net\IPEndPoint.cs</Link>
