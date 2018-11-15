@@ -23,11 +23,7 @@ namespace System
         public abstract string FullName { get; }
 
         public abstract Assembly Assembly { get; }
-#if MONO
-        public override abstract Module Module { get; }
-#else
         public abstract new Module Module { get; }
-#endif
 
         public bool IsNested => DeclaringType != null;
         public override Type DeclaringType => null;
