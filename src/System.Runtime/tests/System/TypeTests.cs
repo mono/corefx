@@ -242,7 +242,9 @@ namespace System.Tests
         [InlineData("system.nullable`1[system.int32]", typeof(TypeLoadException), false)]
         [InlineData("System.NonExistingType", typeof(TypeLoadException), false)]
         [InlineData("", typeof(TypeLoadException), false)]
+#if !MONO // MONO issue #11684
         [InlineData("System.Int32[,*,]", typeof(ArgumentException), false)]
+#endif
         [InlineData("Outside`2", typeof(TypeLoadException), false)]
         [InlineData("Outside`1[System.Boolean, System.Int32]", typeof(ArgumentException), true)]
         public static void GetTypeByName_Invalid(string typeName, Type expectedException, bool alwaysThrowsException)
@@ -317,12 +319,16 @@ namespace System.Tests
         static string testtype = "System.Collections.Generic.Dictionary`2[[Program, Foo], [Program, Foo]]";
 
         private static Func<AssemblyName, Assembly> assemblyloader = (aName) => aName.Name == "TestLoadAssembly" ?
+#if MONO
+                           Assembly.LoadFrom(@"TestLoadAssembly.dll") :
+#else
                            Assembly.LoadFrom(@".\TestLoadAssembly.dll") :
+#endif
                            null;
         private static Func<Assembly, String, Boolean, Type> typeloader = (assem, name, ignore) => assem == null ?
                              Type.GetType(name, false, ignore) :
                                  assem.GetType(name, false, ignore);
-        [Fact]
+        [Fact(Skip="Mono issue #11692")]
         [SkipOnTargetFramework(TargetFrameworkMonikers.UapAot, "Assembly.LoadFrom() is not supported on UapAot")]
         public static void GetTypeByName()
         {
@@ -397,6 +403,7 @@ namespace System.Tests
 
         [Fact]
         [SkipOnTargetFramework(TargetFrameworkMonikers.NetFramework)]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         public static void IsContextful()
         {
             Assert.True(!typeof(TypeTestsExtended).IsContextful);

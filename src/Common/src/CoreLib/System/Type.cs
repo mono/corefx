@@ -23,7 +23,11 @@ namespace System
         public abstract string FullName { get; }
 
         public abstract Assembly Assembly { get; }
+#if MONO
+        public override abstract Module Module { get; }
+#else
         public abstract new Module Module { get; }
+#endif
 
         public bool IsNested => DeclaringType != null;
         public override Type DeclaringType => null;
@@ -100,7 +104,11 @@ namespace System
         public bool IsCOMObject => IsCOMObjectImpl();
         protected abstract bool IsCOMObjectImpl();
         public bool IsContextful => IsContextfulImpl();
+#if MONO
+        protected virtual bool IsContextfulImpl() => typeof(ContextBoundObject).IsAssignableFrom(this);
+#else
         protected virtual bool IsContextfulImpl() => false;
+#endif
 
         public virtual bool IsCollectible => true;
 
