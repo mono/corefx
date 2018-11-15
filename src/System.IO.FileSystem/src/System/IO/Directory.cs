@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.IO.Enumeration;
-using System.Linq;
 
 namespace System.IO
 {
