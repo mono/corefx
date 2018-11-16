@@ -8,9 +8,6 @@ using System.IO;
 using System.Reflection;
 using Xunit;
 
-// These classes conflict with ones from System.Reflection/tests/ModuleTests.cs
-// within single test assembly on MONO.
-#if !MONO
 internal class Outside
 {
     public class Inside { }
@@ -20,7 +17,6 @@ internal class Outside<T>
 {
     public class Inside<U> { }
 }
-#endif
 
 namespace System.Tests
 {
