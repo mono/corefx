@@ -242,9 +242,7 @@ namespace System.Tests
         [InlineData("system.nullable`1[system.int32]", typeof(TypeLoadException), false)]
         [InlineData("System.NonExistingType", typeof(TypeLoadException), false)]
         [InlineData("", typeof(TypeLoadException), false)]
-#if !MONO // MONO issue #11684
         [InlineData("System.Int32[,*,]", typeof(ArgumentException), false)]
-#endif
         [InlineData("Outside`2", typeof(TypeLoadException), false)]
         [InlineData("Outside`1[System.Boolean, System.Int32]", typeof(ArgumentException), true)]
         public static void GetTypeByName_Invalid(string typeName, Type expectedException, bool alwaysThrowsException)
