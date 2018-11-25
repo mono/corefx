@@ -26,7 +26,11 @@ namespace System.IO.Enumeration
             //
             // We also allowed for expression to be "foo\" which would translate to "foo\*".
 
+#if !MONO // Requires CoreFX Path
             ReadOnlySpan<char> directoryName = Path.GetDirectoryName(expression.AsSpan());
+#else
+            ReadOnlySpan<char> directoryName = Path.GetDirectoryName(expression).AsSpan();
+#endif
 
             if (directoryName.Length != 0)
             {

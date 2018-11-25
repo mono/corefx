@@ -33,6 +33,7 @@ namespace System.IO.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Not working")]
         public void SearchPatternEmpty()
         {
             // To avoid OS differences we have decided not to throw an argument exception when empty

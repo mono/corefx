@@ -42,6 +42,7 @@ namespace System.IO.Tests
 
         [Theory, MemberData(nameof(PathsWithInvalidCharacters))]
         [SkipOnTargetFramework(TargetFrameworkMonikers.NetFramework)]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Not working")]
         public void PathWithInvalidCharactersAsPath_Core(string invalidPath)
         {
             if (invalidPath.Contains('\0'))

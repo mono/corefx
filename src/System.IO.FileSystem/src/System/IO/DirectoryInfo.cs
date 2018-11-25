@@ -5,7 +5,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Enumeration;
+#if !MONO
 using System.Linq;
+#endif
 
 namespace System.IO
 {
@@ -162,16 +164,16 @@ namespace System.IO
             if (searchPattern == null)
                 throw new ArgumentNullException(nameof(searchPattern));
 
-            FileSystemEnumerableFactory.NormalizeInputs(ref path, ref searchPattern, options);
+            System.IO.Enumeration.FileSystemEnumerableFactory.NormalizeInputs(ref path, ref searchPattern, options);
 
             switch (searchTarget)
             {
                 case SearchTarget.Directories:
-                    return FileSystemEnumerableFactory.DirectoryInfos(path, searchPattern, options);
+                    return System.IO.Enumeration.FileSystemEnumerableFactory.DirectoryInfos(path, searchPattern, options);
                 case SearchTarget.Files:
-                    return FileSystemEnumerableFactory.FileInfos(path, searchPattern, options);
+                    return System.IO.Enumeration.FileSystemEnumerableFactory.FileInfos(path, searchPattern, options);
                 case SearchTarget.Both:
-                    return FileSystemEnumerableFactory.FileSystemInfos(path, searchPattern, options);
+                    return System.IO.Enumeration.FileSystemEnumerableFactory.FileSystemInfos(path, searchPattern, options);
                 default:
                     throw new ArgumentException(SR.ArgumentOutOfRange_Enum, nameof(searchTarget));
             }
@@ -209,10 +211,9 @@ namespace System.IO
                 throw new IOException(SR.Format(SR.IO_AlreadyExists_Name, destinationWithSeparator));
 
             FileSystem.MoveDirectory(FullPath, destination);
-
             Init(originalPath: destDirName,
                  fullPath: destinationWithSeparator,
-                 fileName: _name,
+                 fileName: null,
                  isNormalized: true);
 
             // Flush any cached information about the directory.
