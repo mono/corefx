@@ -25,7 +25,7 @@ namespace System.Text
 #if MONO
         internal DecoderReplacementFallback(SerializationInfo info, StreamingContext context) => _strDefault = info.GetString("strDefault");
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context) => info.AddValue("strDefault", _strDefault);
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) => info.AddValue("strDefault", _strDefault);
 #endif
 
         public DecoderReplacementFallback(String replacement)

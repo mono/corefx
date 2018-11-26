@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 namespace System.Text
 {
 #if MONO
-    [System.Serializable]
+    [Serializable]
     public sealed class EncoderReplacementFallback : EncoderFallback, ISerializable
 #else
     public sealed class EncoderReplacementFallback : EncoderFallback
@@ -27,7 +27,7 @@ namespace System.Text
 #if MONO
         internal EncoderReplacementFallback(SerializationInfo info, StreamingContext context) =>_strDefault = info.GetString("strDefault");
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context) => info.AddValue("strDefault", _strDefault);
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) => info.AddValue("strDefault", _strDefault);
 #endif
 
         public EncoderReplacementFallback(String replacement)
