@@ -12,7 +12,19 @@ internal static partial class Interop
 {
     internal static partial class Sys
     {
-        internal static int ReadBufferSize { get; } = GetReadDirRBufferSize();
+        internal static object s_syncObject = new object();
+        internal static volatile int s_readBufferSize = 0;
+        internal static int ReadBufferSize
+        {
+            get
+            {
+                if (s_readBufferSize == 0)
+                    lock (s_syncObject)
+                        if (s_readBufferSize == 0)
+                            s_readBufferSize = GetReadDirRBufferSize();
+                return s_readBufferSize;
+            }
+        }
 
         internal enum NodeType : int
         {
