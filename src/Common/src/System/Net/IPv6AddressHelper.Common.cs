@@ -6,12 +6,7 @@ namespace System
 {
     internal static partial class IPv6AddressHelper
     {
-        // fields
         private const int NumberOfLabels = 8;
-        // Lower case hex, no leading zeros
-        private const string CanonicalNumberFormat = "{0:x}";
-        private const string EmbeddedIPv4Format = ":{0:d}.{1:d}.{2:d}.{3:d}";
-        private const char Separator = ':';
 
         // RFC 5952 Section 4.2.3
         // Longest consecutive sequence of zero segments, minimum 2.

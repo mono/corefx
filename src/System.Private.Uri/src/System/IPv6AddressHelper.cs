@@ -3,8 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using System.Text;
-using System.Globalization;
+using System.Diagnostics;
 
 namespace System
 {
@@ -14,35 +13,52 @@ namespace System
     {
         // methods
 
-        internal static string ParseCanonicalName(string str, int start, ref bool isLoopback, ref string scopeId)
+        internal static unsafe string ParseCanonicalName(string str, int start, ref bool isLoopback, ref string scopeId)
         {
-            unsafe
-            {
-                ushort* numbers = stackalloc ushort[NumberOfLabels];
-                // optimized zeroing of 8 shorts = 2 longs
-                ((long*)numbers)[0] = 0L;
-                ((long*)numbers)[1] = 0L;
-                isLoopback = Parse(str, numbers, start, ref scopeId);
-                return '[' + CreateCanonicalName(numbers) + ']';
-            }
-        }
+            ushort* numbersPtr = stackalloc ushort[NumberOfLabels];
+            // optimized zeroing of 8 shorts = 2 longs
+            ((long*)numbersPtr)[0] = 0L;
+            ((long*)numbersPtr)[1] = 0L;
+            Span<ushort> numbers = new Span<ushort>(numbersPtr, NumberOfLabels);
+            Parse(str, numbersPtr, start, ref scopeId);
+            isLoopback = IsLoopback(numbers);
 
-        internal static unsafe string CreateCanonicalName(ushort* numbers)
-        {
             // RFC 5952 Sections 4 & 5 - Compressed, lower case, with possible embedded IPv4 addresses.
 
             // Start to finish, inclusive.  <-1, -1> for no compression
             (int rangeStart, int rangeEnd) = FindCompressionRange(numbers);
             bool ipv4Embedded = ShouldHaveIpv4Embedded(numbers);
 
-            StringBuilder builder = new StringBuilder();
+            Span<char> stackSpace = stackalloc char[48]; // large enough for any IPv6 string, including brackets
+            stackSpace[0] = '[';
+            int pos = 1;
+            int charsWritten;
+            bool success;
             for (int i = 0; i < NumberOfLabels; i++)
             {
                 if (ipv4Embedded && i == (NumberOfLabels - 2))
                 {
+                    stackSpace[pos++] = ':';
+                    
                     // Write the remaining digits as an IPv4 address
-                    builder.AppendFormat(CultureInfo.InvariantCulture, EmbeddedIPv4Format,
-                        numbers[i] >> 8, numbers[i] & 0xFF, numbers[i + 1] >> 8, numbers[i + 1] & 0xFF);
+                    success = (numbers[i] >> 8).TryFormat(stackSpace.Slice(pos), out charsWritten);
+                    Debug.Assert(success);
+                    pos += charsWritten;
+
+                    stackSpace[pos++] = '.';
+                    success = (numbers[i] & 0xFF).TryFormat(stackSpace.Slice(pos), out charsWritten);
+                    Debug.Assert(success);
+                    pos += charsWritten;
+
+                    stackSpace[pos++] = '.';
+                    success = (numbers[i + 1] >> 8).TryFormat(stackSpace.Slice(pos), out charsWritten);
+                    Debug.Assert(success);
+                    pos += charsWritten;
+
+                    stackSpace[pos++] = '.';
+                    success = (numbers[i + 1] & 0xFF).TryFormat(stackSpace.Slice(pos), out charsWritten);
+                    Debug.Assert(success);
+                    pos += charsWritten;
                     break;
                 }
 
@@ -67,12 +83,15 @@ namespace System
 
                 if (i != 0)
                 {
-                    builder.Append(Separator);
+                    stackSpace[pos++] = ':';
                 }
-                builder.AppendFormat(CultureInfo.InvariantCulture, CanonicalNumberFormat, numbers[i]);
+                success = numbers[i].TryFormat(stackSpace.Slice(pos), out charsWritten, format: "x");
+                Debug.Assert(success);
+                pos += charsWritten;
             }
 
-            return builder.ToString();
+            stackSpace[pos++] = ']';
+            return new string(stackSpace.Slice(0, pos));
         }
 
         private static unsafe bool IsLoopback(ReadOnlySpan<ushort> numbers)
