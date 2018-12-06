@@ -78,6 +78,18 @@ namespace System.Runtime.CompilerServices
         public void SetStateMachine(System.Runtime.CompilerServices.IAsyncStateMachine stateMachine) { }
         public void Start<TStateMachine>(ref TStateMachine stateMachine) where TStateMachine : System.Runtime.CompilerServices.IAsyncStateMachine { }
     }
+    public readonly struct ConfiguredAsyncEnumerable<T>
+    {
+        private readonly object _dummy;
+        public Enumerator GetAsyncEnumerator(System.Threading.CancellationToken cancellationToken = default) { throw null; }
+        public readonly struct Enumerator
+        {
+            private readonly object _dummy;
+            public ConfiguredValueTaskAwaitable<bool> MoveNextAsync() { throw null; }
+            public T Current { get { throw null; } }
+            public ConfiguredValueTaskAwaitable DisposeAsync() { throw null; }
+        }
+    }
 }
 namespace System.Threading
 {
