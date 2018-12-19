@@ -9,18 +9,22 @@
 #include <sys/types.h>
 
 #if defined(AF_PACKET)
+#ifdef HAVE_LINUX_IF_PACKET_H
 #include <linux/if_packet.h>
 #include <linux/if_arp.h>
+#define SUPPORTED 1
+#endif
 #elif defined(AF_LINK)
 #include <net/if_dl.h>
 #include <net/if_types.h>
-#else
-#error System must have AF_PACKET or AF_LINK.
+#define SUPPORTED 1
 #endif
 
 uint16_t MapHardwareType(uint16_t nativeType)
 {
-#if defined(AF_PACKET)
+#ifndef SUPPORTED
+	return NetworkInterfaceType_Unknown;
+#elif defined(AF_PACKET)
     switch (nativeType)
     {
         case ARPHRD_ETHER:
