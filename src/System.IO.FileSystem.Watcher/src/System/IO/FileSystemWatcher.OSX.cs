@@ -257,6 +257,9 @@ namespace System.IO
                     {
                         lock (s_lockObject)
                         {
+#if MONO
+                            s_watcherRunLoop = IntPtr.Zero;
+#endif                                                        
                             Interop.CoreFoundation.CFRelease(runLoop);
                         }
                     }
