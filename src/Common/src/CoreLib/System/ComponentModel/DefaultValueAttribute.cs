@@ -36,10 +36,23 @@ namespace System.ComponentModel
             // load an otherwise normal class.
             try
             {
+#if MONO
+                // lazy init reflection objects
+                if (s_convertFromInvariantString == null)
+                {
+                    Type typeDescriptorType = Type.GetType("System.ComponentModel.TypeDescriptor, System.ComponentModel.TypeConverter", throwOnError: false);
+                    Volatile.Write(ref s_convertFromInvariantString, typeDescriptorType == null ? new object() : Delegate.CreateDelegate(typeof(Func<Type, string, object>), typeDescriptorType, "ConvertFromInvariantString", ignoreCase: false));
+                }
+                if (s_convertFromInvariantString is Func<Type, string, object> convertFromInvariantString)
+                {
+                    _value = convertFromInvariantString(type, value);
+                }
+#else
                 if (TryConvertFromInvariantString(type, value, out object convertedValue))
                 {
                     _value = convertedValue;
                 }
+#endif
                 else if (type.IsSubclassOf(typeof(Enum)))
                 {
                     _value = Enum.Parse(type, value, true);
@@ -54,7 +67,7 @@ namespace System.ComponentModel
                 }
 
                 return;
-
+#if !MONO
                 // Looking for ad hoc created TypeDescriptor.ConvertFromInvariantString(Type, string)
                 bool TryConvertFromInvariantString(Type typeToConvert, string stringValue, out object conversionResult)
                 {
@@ -74,6 +87,7 @@ namespace System.ComponentModel
 
                     return true;
                 }
+#endif
             }
             catch
             {
