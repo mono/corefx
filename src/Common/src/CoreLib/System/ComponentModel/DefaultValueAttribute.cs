@@ -36,7 +36,7 @@ namespace System.ComponentModel
             // load an otherwise normal class.
             try
             {
-#if MONO
+#if __MonoCS__
                 // lazy init reflection objects
                 if (s_convertFromInvariantString == null)
                 {
@@ -67,7 +67,7 @@ namespace System.ComponentModel
                 }
 
                 return;
-#if !MONO
+#if !__MonoCS__
                 // Looking for ad hoc created TypeDescriptor.ConvertFromInvariantString(Type, string)
                 bool TryConvertFromInvariantString(Type typeToConvert, string stringValue, out object conversionResult)
                 {
