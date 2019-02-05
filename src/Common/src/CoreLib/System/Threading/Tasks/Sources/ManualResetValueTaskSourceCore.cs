@@ -159,6 +159,31 @@ namespace System.Threading.Tasks.Sources
                     ManualResetValueTaskSourceCoreShared.ThrowInvalidOperationException();
                 }
 
+#if __MonoCS__
+                if (_capturedContext == null)
+                {
+                    if (_executionContext != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(continuation, state, preferLocal: true);
+                    }
+                    else
+                    {
+                        ThreadPool.UnsafeQueueUserWorkItem(continuation, state, preferLocal: true);
+                    }
+                }
+                else if (_capturedContext is SynchronizationContext sc)
+                {
+                    sc.Post(s =>
+                    {
+                        var tuple = (Tuple<Action<object>, object>)s;
+                        tuple.Item1(tuple.Item2);
+                    }, Tuple.Create(continuation, state));
+                }
+                else if (_capturedContext is TaskScheduler ts)
+                {
+                    Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
+                }
+#else
                 switch (_capturedContext)
                 {
                     case null:
@@ -184,6 +209,7 @@ namespace System.Threading.Tasks.Sources
                         Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
                         break;
                 }
+#endif
             }
         }
 
@@ -229,6 +255,38 @@ namespace System.Threading.Tasks.Sources
         /// </summary>
         private void InvokeContinuation()
         {
+#if __MonoCS__
+            if (_capturedContext == null)
+            {
+                if (RunContinuationsAsynchronously)
+                {
+                    if (_executionContext != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(_continuation, _continuationState, preferLocal: true);
+                    }
+                    else
+                    {
+                        ThreadPool.UnsafeQueueUserWorkItem(_continuation, _continuationState, preferLocal: true);
+                    }
+                }
+                else
+                {
+                    _continuation(_continuationState);
+                }
+            }
+            else if (_capturedContext is SynchronizationContext sc)
+            {
+                sc.Post(s =>
+                {
+                    var state = (Tuple<Action<object>, object>)s;
+                    state.Item1(state.Item2);
+                }, Tuple.Create(_continuation, _continuationState));
+            }
+            else if (_capturedContext is TaskScheduler ts)
+            {
+                Task.Factory.StartNew(_continuation, _continuationState, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
+            }
+#else
             switch (_capturedContext)
             {
                 case null:
@@ -261,6 +319,7 @@ namespace System.Threading.Tasks.Sources
                     Task.Factory.StartNew(_continuation, _continuationState, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
                     break;
             }
+#endif
         }
     }
 
