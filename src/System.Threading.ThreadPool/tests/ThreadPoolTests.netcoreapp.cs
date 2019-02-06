@@ -115,6 +115,7 @@ namespace System.Threading.ThreadPools.Tests
             Assert.Equal(useUnsafe ? 0 : 42, await tcs.Task);
         }
 
+#if !MONO
         [Theory]
         [MemberData(nameof(OneBool))]
         public void UnsafeQueueUserWorkItem_IThreadPoolWorkItem_Invalid_Throws(bool preferLocal)
@@ -188,5 +189,6 @@ namespace System.Threading.ThreadPools.Tests
             public InvalidWorkItemAndTask(Action action) : base(action) { }
             public void Execute() { }
         }
+#endif
     }
 }
