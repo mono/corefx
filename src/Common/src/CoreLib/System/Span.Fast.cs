@@ -370,7 +370,13 @@ namespace System
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<T> Slice(Range range)
         {
+#if __MonoCS__
+            var offsetAndLength = range.GetOffsetAndLength(_length);
+            int start = offsetAndLength.Offset;
+            int length = offsetAndLength.Length;
+#else
             (int start, int length) = range.GetOffsetAndLength(_length);
+#endif
             return new Span<T>(ref Unsafe.Add(ref _pointer.Value, start), length);
         }
 

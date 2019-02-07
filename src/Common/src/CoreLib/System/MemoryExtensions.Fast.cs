@@ -420,7 +420,13 @@ namespace System
             if (default(T) == null && array.GetType() != typeof(T[]))
                 ThrowHelper.ThrowArrayTypeMismatchException();
 
+#if __MonoCS__
+            var offsetAndLength = range.GetOffsetAndLength(array.Length);
+            int start = offsetAndLength.Offset;
+            int length = offsetAndLength.Length;
+#else
             (int start, int length) = range.GetOffsetAndLength(array.Length);
+#endif
             return new Span<T>(ref Unsafe.Add(ref Unsafe.As<byte, T>(ref array.GetRawSzArrayData()), start), length);
         }
 
@@ -581,7 +587,13 @@ namespace System
                 return default;
             }
 
+#if __MonoCS__
+            var offsetAndLength = range.GetOffsetAndLength(text.Length);
+            int start = offsetAndLength.Offset;
+            int length = offsetAndLength.Length;
+#else
             (int start, int length) = range.GetOffsetAndLength(text.Length);
+#endif
             return new ReadOnlyMemory<char>(text, start, length);
         }
     }

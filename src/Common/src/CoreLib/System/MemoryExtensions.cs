@@ -884,7 +884,13 @@ namespace System
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Span<T> AsSpan<T>(this ArraySegment<T> segment, Range range)
         {
+#if __MonoCS__
+            var offsetAndLength = range.GetOffsetAndLength(segment.Count);
+            int start = offsetAndLength.Offset;
+            int length = offsetAndLength.Length;
+#else
             (int start, int length) = range.GetOffsetAndLength(segment.Count);
+#endif
             return new Span<T>(segment.Array, segment.Offset + start, length);
         }
 
@@ -954,7 +960,13 @@ namespace System
                 return default;
             }
 
+#if __MonoCS__
+            var offsetAndLength = range.GetOffsetAndLength(array.Length);
+            int start = offsetAndLength.Offset;
+            int length = offsetAndLength.Length;
+#else
             (int start, int length) = range.GetOffsetAndLength(array.Length);
+#endif
             return new Memory<T>(array, start, length);
         }
 

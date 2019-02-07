@@ -1636,7 +1636,13 @@ namespace System
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string Substring(Range range)
         {
+#if __MonoCS__
+            var offsetAndLength = range.GetOffsetAndLength(Length);
+            int start = offsetAndLength.Offset;
+            int length = offsetAndLength.Length;
+#else
             (int start, int length) = range.GetOffsetAndLength(Length);
+#endif
             return Substring(start, length);
         }
 
