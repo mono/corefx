@@ -233,9 +233,20 @@ namespace System.IO
         }
 
 #if MONO // Copied from CoreFX-master (NS2.1)
-        public override ValueTask DisposeAsync() => GetType() != typeof(StreamWriter) ? base.DisposeAsync() : DisposeAsyncCore();
+        public override ValueTask DisposeAsync()
+        {
+#if __MonoCS__
+            return new ValueTask<int>(GetType() != typeof(StreamWriter) ? base.DisposeAsync() : DisposeAsyncCore());
+#else
+            return GetType() != typeof(StreamWriter) ? base.DisposeAsync() : DisposeAsyncCore();
+#endif
+        }
 
+#if __MonoCS__
+        private async Task DisposeAsyncCore()
+#else
         private async ValueTask DisposeAsyncCore()
+#endif
         {
             // Same logic as in Dispose(), but with async flushing.
             Debug.Assert(GetType() == typeof(StreamWriter));

@@ -227,6 +227,7 @@ namespace System.IO
         }
 
 #if MONO
+#if !__MonoCS__
         // Copied from CoreFX-master (NS2.1)
         public override async ValueTask DisposeAsync()
         {
@@ -250,6 +251,35 @@ namespace System.IO
                 _buffer = null;
             }
         }
+#else
+        public override ValueTask DisposeAsync()
+        {
+            return new ValueTask(DisposeAsyncInternal());
+        }
+
+        private async Task DisposeAsyncInternal()
+        {
+            try
+            {
+                if (_stream != null)
+                {
+                    try
+                    {
+                        await FlushAsync().ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        await _stream.DisposeAsync().ConfigureAwait(false);
+                    }
+                }
+            }
+            finally
+            {
+                _stream = null;
+                _buffer = null;
+            }
+        }
+#endif
 #endif
 
         protected override void Dispose(bool disposing)
