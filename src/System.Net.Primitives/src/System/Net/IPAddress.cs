@@ -15,6 +15,9 @@ namespace System.Net
     ///     Provides an Internet Protocol (IP) address.
     ///   </para>
     /// </devdoc>
+#if MONO
+    [Serializable]
+#endif
     public class IPAddress
     {
         public static readonly IPAddress Any = new ReadOnlyIPAddress(0x0000000000000000);
