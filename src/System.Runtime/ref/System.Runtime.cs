@@ -1455,6 +1455,23 @@ namespace System
     {
         string ToString(string format, System.IFormatProvider formatProvider);
     }
+    public readonly partial struct Index : System.IEquatable<System.Index>
+    {
+        private readonly int _dummyPrimitive;
+        public Index(int value, bool fromEnd = false) { throw null; }
+        public bool IsFromEnd { get { throw null; } }
+        public int Value { get { throw null; } }
+        public static Index Start { get { throw null; } }
+        public static Index End { get { throw null; } }
+        public static Index FromStart(int value) { throw null; }
+        public static Index FromEnd(int value) { throw null; }
+        public int GetOffset(int length) { throw null; }
+        public bool Equals(System.Index other) { throw null; }
+        public override bool Equals(object value) { throw null; }
+        public override int GetHashCode() { throw null; }
+        public static implicit operator System.Index (int value) { throw null; }
+        public override string ToString() { throw null; }
+    }
     public sealed partial class IndexOutOfRangeException : System.SystemException
     {
         public IndexOutOfRangeException() { }
@@ -1735,6 +1752,9 @@ namespace System
         public System.Buffers.MemoryHandle Pin() { throw null; }
         public System.Memory<T> Slice(int start) { throw null; }
         public System.Memory<T> Slice(int start, int length) { throw null; }
+        public System.Memory<T> Slice(System.Index startIndex) { throw null; }
+        public System.Memory<T> Slice(System.Range range) { throw null; }
+        public System.Memory<T> this[System.Range range] { get { throw null; } }
         public T[] ToArray() { throw null; }
         public override string ToString() { throw null; }
         public bool TryCopyTo(System.Memory<T> destination) { throw null; }
@@ -1956,6 +1976,30 @@ namespace System
         public PlatformNotSupportedException(string message, System.Exception inner) { }
     }
     public delegate bool Predicate<in T>(T obj);
+    public readonly partial struct Range : System.IEquatable<System.Range>
+    {
+        private readonly int _dummyPrimitive;
+        public System.Index End { get { throw null; } }
+        public System.Index Start { get { throw null; } }
+        public Range(System.Index start, System.Index end) { throw null; }
+        public OffsetAndLength GetOffsetAndLength(int length) { throw null; }
+        public override bool Equals(object value) { throw null; }
+        public bool Equals(System.Range other) { throw null; }
+        public override int GetHashCode() { throw null; }
+        public override string ToString() { throw null; }
+        public static System.Range StartAt(System.Index start) { throw null; }
+        public static System.Range EndAt(System.Index end) { throw null; }
+        public static System.Range All { get { throw null; } }
+
+        public readonly struct OffsetAndLength
+        {
+            private readonly int _dummyPrimitive;
+            public int Offset { get { throw null; } }
+            public int Length { get { throw null; } }
+            public OffsetAndLength(int offset, int length) { throw null; }
+            public void Deconstruct(out int offset, out int length) { throw null; }
+        }
+    }
     public partial class RankException : System.SystemException
     {
         public RankException() { }
@@ -1984,6 +2028,9 @@ namespace System
         public System.Buffers.MemoryHandle Pin() { throw null; }
         public System.ReadOnlyMemory<T> Slice(int start) { throw null; }
         public System.ReadOnlyMemory<T> Slice(int start, int length) { throw null; }
+        public System.ReadOnlyMemory<T> Slice(System.Index startIndex) { throw null; }
+        public System.ReadOnlyMemory<T> Slice(System.Range range)  { throw null; }
+        public System.ReadOnlyMemory<T> this[System.Range range] { get { throw null; } }
         public T[] ToArray() { throw null; }
         public override string ToString() { throw null; }
         public bool TryCopyTo(System.Memory<T> destination) { throw null; }
@@ -2018,6 +2065,8 @@ namespace System
         public static bool operator !=(System.ReadOnlySpan<T> left, System.ReadOnlySpan<T> right) { throw null; }
         public System.ReadOnlySpan<T> Slice(int start) { throw null; }
         public System.ReadOnlySpan<T> Slice(int start, int length) { throw null; }
+        public System.ReadOnlySpan<T> Slice(System.Index startIndex) { throw null; }
+        public System.ReadOnlySpan<T> Slice(System.Range range) { throw null; }
         public T[] ToArray() { throw null; }
         public override string ToString() { throw null; }
         public bool TryCopyTo(System.Span<T> destination) { throw null; }
@@ -2225,6 +2274,8 @@ namespace System
         public static bool operator !=(System.Span<T> left, System.Span<T> right) { throw null; }
         public System.Span<T> Slice(int start) { throw null; }
         public System.Span<T> Slice(int start, int length) { throw null; }
+        public System.Span<T> Slice(System.Index startIndex) { throw null; }
+        public System.Span<T> Slice(System.Range range) { throw null; }
         public T[] ToArray() { throw null; }
         public override string ToString() { throw null; }
         public bool TryCopyTo(System.Span<T> destination) { throw null; }
@@ -2266,6 +2317,10 @@ namespace System
         public unsafe String(sbyte* value, int startIndex, int length, System.Text.Encoding enc) { }
         [System.Runtime.CompilerServices.IndexerName("Chars")]
         public char this[int index] { get { throw null; } }
+        [System.Runtime.CompilerServices.IndexerName("Chars")]
+        public char this[System.Index index] { get { throw null; } }
+        [System.Runtime.CompilerServices.IndexerName("Chars")]
+        public System.String this[System.Range range] { get { throw null; } }
         public int Length { get { throw null; } }
         public object Clone() { throw null; }
         public static int Compare(System.String strA, int indexA, System.String strB, int indexB, int length) { throw null; }
@@ -2392,6 +2447,8 @@ namespace System
         public bool StartsWith(System.String value, System.StringComparison comparisonType) { throw null; }
         public System.String Substring(int startIndex) { throw null; }
         public System.String Substring(int startIndex, int length) { throw null; }
+        public System.String Substring(System.Index startIndex) { throw null; }
+        public System.String Substring(System.Range range) { throw null; }
         System.Collections.Generic.IEnumerator<char> System.Collections.Generic.IEnumerable<System.Char>.GetEnumerator() { throw null; }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { throw null; }
         bool System.IConvertible.ToBoolean(System.IFormatProvider provider) { throw null; }
@@ -6712,6 +6769,7 @@ namespace System.Runtime.CompilerServices
         public static int GetHashCode(object o) { throw null; }
         public static object GetObjectValue(object obj) { throw null; }
         public static object GetUninitializedObject(System.Type type) { throw null; }
+        public static T[] GetSubArray<T>(T[] array, System.Range range) { throw null; }
         public static void InitializeArray(System.Array array, System.RuntimeFieldHandle fldHandle) { }
         public static bool IsReferenceOrContainsReferences<T>() { throw null; }
         public static void PrepareConstrainedRegions() { }
