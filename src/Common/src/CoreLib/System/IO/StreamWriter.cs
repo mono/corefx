@@ -236,7 +236,7 @@ namespace System.IO
         public override ValueTask DisposeAsync()
         {
 #if __MonoCS__
-            return new ValueTask<int>(GetType() != typeof(StreamWriter) ? base.DisposeAsync() : DisposeAsyncCore());
+            return GetType() != typeof(StreamWriter) ? base.DisposeAsync() : new ValueTask(DisposeAsyncCore());
 #else
             return GetType() != typeof(StreamWriter) ? base.DisposeAsync() : DisposeAsyncCore();
 #endif
