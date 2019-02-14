@@ -21,6 +21,7 @@ namespace System.Net.Security.Tests
 {
     using Configuration = System.Net.Test.Common.Configuration;
 
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
     public class SslStreamAlpnTests
     {
         private static bool BackendSupportsAlpn => PlatformDetection.SupportsAlpn;

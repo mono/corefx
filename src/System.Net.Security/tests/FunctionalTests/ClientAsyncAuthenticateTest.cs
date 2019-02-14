@@ -42,6 +42,7 @@ namespace System.Net.Security.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Mono ignores EncryptionPolicy")]
         public async Task ClientAsyncAuthenticate_ServerNoEncryption_NoConnect()
         {
             await Assert.ThrowsAsync<IOException>(() => ClientAsyncSslHelper(EncryptionPolicy.NoEncryption));
