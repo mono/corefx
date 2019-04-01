@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Text;
 
 namespace System
@@ -16,14 +17,6 @@ namespace System
         internal delegate bool MatchNumberDelegate(ref __DTString str, int digitLen, out int result);
 
         internal static MatchNumberDelegate m_hebrewNumberParser;
-
-        static DateTimeParse()
-        {
-            if (!GlobalizationMode.Invariant)
-            {
-                m_hebrewNumberParser = new MatchNumberDelegate(DateTimeParse.MatchHebrewDigits);
-            }
-        }
 
         internal static DateTime ParseExact(ReadOnlySpan<char> s, ReadOnlySpan<char> format, DateTimeFormatInfo dtfi, DateTimeStyles style)
         {
@@ -4494,6 +4487,7 @@ new DS[] { DS.ERROR, DS.TX_NNN,  DS.TX_NNN,  DS.TX_NNN,  DS.ERROR,   DS.ERROR,  
 
             if (!GlobalizationMode.Invariant && (CalendarId)parseInfo.calendar.ID == CalendarId.HEBREW)
             {
+                LazyInitializer.EnsureInitialized (ref m_hebrewNumberParser, () => new MatchNumberDelegate(DateTimeParse.MatchHebrewDigits));
                 parseInfo.parseNumberDelegate = m_hebrewNumberParser;
                 parseInfo.fCustomNumberParser = true;
             }
