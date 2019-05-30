@@ -1056,8 +1056,8 @@ new DS[] { DS.ERROR, DS.TX_NNN,  DS.TX_NNN,  DS.TX_NNN,  DS.ERROR,   DS.ERROR,  
                     {
                         throw new PlatformNotSupportedException();
                     }
-                    result.calendar = JapaneseCalendar.GetDefaultInstance();
-                    dtfi = DateTimeFormatInfo.GetJapaneseCalendarDTFI();
+                    result.calendar = GlobalizationGate.GetJapaneseCalendarDefaultInstance();
+                    dtfi = GlobalizationGate.GetJapaneseCalendarDTFI();
                     if (result.era != -1)
                     {
                         result.era = tokenValue;
@@ -1075,8 +1075,8 @@ new DS[] { DS.ERROR, DS.TX_NNN,  DS.TX_NNN,  DS.TX_NNN,  DS.ERROR,   DS.ERROR,  
                     {
                         throw new PlatformNotSupportedException();
                     }
-                    result.calendar = TaiwanCalendar.GetDefaultInstance();
-                    dtfi = DateTimeFormatInfo.GetTaiwanCalendarDTFI();
+                    result.calendar = GlobalizationGate.GetTaiwanCalendarDefaultInstance();
+                    dtfi = GlobalizationGate.GetTaiwanCalendarDTFI();
                     if (result.era != -1)
                     {
                         result.era = tokenValue;

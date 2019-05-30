@@ -2248,44 +2248,6 @@ namespace System.Globalization
         internal const String JapaneseLangName = "ja";
         internal const String EnglishLangName = "en";
 
-        private static volatile DateTimeFormatInfo s_jajpDTFI;
-        private static volatile DateTimeFormatInfo s_zhtwDTFI;
-
-        //
-        // Create a Japanese DTFI which uses JapaneseCalendar.  This is used to parse
-        // date string with Japanese era name correctly even when the supplied DTFI
-        // does not use Japanese calendar.
-        // The created instance is stored in global s_jajpDTFI.
-        //
-        internal static DateTimeFormatInfo GetJapaneseCalendarDTFI()
-        {
-            DateTimeFormatInfo temp = s_jajpDTFI;
-            if (temp == null && !GlobalizationMode.Invariant)
-            {
-                temp = new CultureInfo("ja-JP", false).DateTimeFormat;
-                temp.Calendar = JapaneseCalendar.GetDefaultInstance();
-                s_jajpDTFI = temp;
-            }
-            return (temp);
-        }
-
-        // Create a Taiwan DTFI which uses TaiwanCalendar.  This is used to parse
-        // date string with era name correctly even when the supplied DTFI
-        // does not use Taiwan calendar.
-        // The created instance is stored in global s_zhtwDTFI.
-        internal static DateTimeFormatInfo GetTaiwanCalendarDTFI()
-        {
-            DateTimeFormatInfo temp = s_zhtwDTFI;
-            if (temp == null && !GlobalizationMode.Invariant)
-            {
-                temp = new CultureInfo("zh-TW", false).DateTimeFormat;
-                temp.Calendar = TaiwanCalendar.GetDefaultInstance();
-                s_zhtwDTFI = temp;
-            }
-            return (temp);
-        }
-
-
         // DTFI properties should call this when the setter are called.
         private void ClearTokenHashTable()
         {
@@ -2490,11 +2452,11 @@ namespace System.Globalization
                         String specialDayOfWeek = "(" + GetAbbreviatedDayName((DayOfWeek)i) + ")";
                         InsertHash(temp, specialDayOfWeek, TokenType.DayOfWeekToken, i);
                     }
-                    if (this.Calendar.GetType() != typeof(JapaneseCalendar))
+                    if (!GlobalizationGate.IsJapaneseCalendar(this.Calendar))
                     {
                         // Special case for Japanese.  If this is a Japanese DTFI, and the calendar is not Japanese calendar,
                         // we will check Japanese Era name as well when the calendar is Gregorian.
-                        DateTimeFormatInfo jaDtfi = GetJapaneseCalendarDTFI();
+                        DateTimeFormatInfo jaDtfi = GlobalizationGate.GetJapaneseCalendarDTFI();
                         for (int i = 1; i <= jaDtfi.Calendar.Eras.Length; i++)
                         {
                             InsertHash(temp, jaDtfi.GetEraName(i), TokenType.JapaneseEraToken, i);
@@ -2507,7 +2469,7 @@ namespace System.Globalization
                 // TODO: This prohibits similar custom cultures, but we hard coded the name
                 else if (!GlobalizationMode.Invariant && CultureName.Equals("zh-TW"))
                 {
-                    DateTimeFormatInfo twDtfi = GetTaiwanCalendarDTFI();
+                    DateTimeFormatInfo twDtfi = GlobalizationGate.GetTaiwanCalendarDTFI();
                     for (int i = 1; i <= twDtfi.Calendar.Eras.Length; i++)
                     {
                         if (twDtfi.GetEraName(i).Length > 0)
