@@ -2325,7 +2325,10 @@ namespace System.Globalization
                 // This is determined in DateTimeFormatInfoScanner.  Use this flag to determine if we should treat date separator as ignorable symbol.
                 bool useDateSepAsIgnorableSymbol = false;
 
-                PopulateSpecialCalendars(temp, ref useDateSepAsIgnorableSymbol);
+                if (!GlobalizationMode.Invariant)
+                {
+                    PopulateSpecialTokenHashTable(temp, ref useDateSepAsIgnorableSymbol);
+                }
 
                 if (!GlobalizationMode.Invariant && LanguageName.Equals("ky"))
                 {
@@ -2390,42 +2393,6 @@ namespace System.Globalization
                     InsertHash(temp, GetAbbreviatedEraName(i), TokenType.EraToken, i);
                 }
 
-                // TODO: This ignores other cultures that might want to do something similar
-                if (!GlobalizationMode.Invariant && LanguageName.Equals(JapaneseLangName))
-                {
-                    // Japanese allows day of week forms like: "(Tue)"
-                    for (int i = 0; i < 7; i++)
-                    {
-                        String specialDayOfWeek = "(" + GetAbbreviatedDayName((DayOfWeek)i) + ")";
-                        InsertHash(temp, specialDayOfWeek, TokenType.DayOfWeekToken, i);
-                    }
-                    if (!IsJapaneseCalendar(this.Calendar))
-                    {
-                        // Special case for Japanese.  If this is a Japanese DTFI, and the calendar is not Japanese calendar,
-                        // we will check Japanese Era name as well when the calendar is Gregorian.
-                        DateTimeFormatInfo jaDtfi = GetJapaneseCalendarDTFI();
-                        for (int i = 1; i <= jaDtfi.Calendar.Eras.Length; i++)
-                        {
-                            InsertHash(temp, jaDtfi.GetEraName(i), TokenType.JapaneseEraToken, i);
-                            InsertHash(temp, jaDtfi.GetAbbreviatedEraName(i), TokenType.JapaneseEraToken, i);
-                            // m_abbrevEnglishEraNames[0] contains the name for era 1, so the token value is i+1.
-                            InsertHash(temp, jaDtfi.AbbreviatedEnglishEraNames[i - 1], TokenType.JapaneseEraToken, i);
-                        }
-                    }
-                }
-                // TODO: This prohibits similar custom cultures, but we hard coded the name
-                else if (!GlobalizationMode.Invariant && CultureName.Equals("zh-TW"))
-                {
-                    DateTimeFormatInfo twDtfi = GetTaiwanCalendarDTFI();
-                    for (int i = 1; i <= twDtfi.Calendar.Eras.Length; i++)
-                    {
-                        if (twDtfi.GetEraName(i).Length > 0)
-                        {
-                            InsertHash(temp, twDtfi.GetEraName(i), TokenType.TEraToken, i);
-                        }
-                    }
-                }
-
                 InsertHash(temp, InvariantInfo.AMDesignator, TokenType.SEP_Am | TokenType.Am, 0);
                 InsertHash(temp, InvariantInfo.PMDesignator, TokenType.SEP_Pm | TokenType.Pm, 1);
 
@@ -2470,7 +2437,7 @@ namespace System.Globalization
             return (temp);
         }
 
-        private void PopulateSpecialCalendars(TokenHashValue[] temp, ref bool useDateSepAsIgnorableSymbol)
+        private void PopulateSpecialTokenHashTable(TokenHashValue[] temp, ref bool useDateSepAsIgnorableSymbol)
         {
             // TODO: This ignores similar custom cultures
             if (LanguageName.Equals("sq"))
@@ -2551,6 +2518,42 @@ namespace System.Globalization
                                 InsertHash(temp, IgnorablePeriod + dateWords[i], TokenType.DateWordToken, 0);
                             }
                             break;
+                    }
+                }
+            }
+
+            // TODO: This ignores other cultures that might want to do something similar
+            if (LanguageName.Equals(JapaneseLangName))
+            {
+                // Japanese allows day of week forms like: "(Tue)"
+                for (int i = 0; i < 7; i++)
+                {
+                    String specialDayOfWeek = "(" + GetAbbreviatedDayName((DayOfWeek)i) + ")";
+                    InsertHash(temp, specialDayOfWeek, TokenType.DayOfWeekToken, i);
+                }
+                if (!IsJapaneseCalendar(this.Calendar))
+                {
+                    // Special case for Japanese.  If this is a Japanese DTFI, and the calendar is not Japanese calendar,
+                    // we will check Japanese Era name as well when the calendar is Gregorian.
+                    DateTimeFormatInfo jaDtfi = GetJapaneseCalendarDTFI();
+                    for (int i = 1; i <= jaDtfi.Calendar.Eras.Length; i++)
+                    {
+                        InsertHash(temp, jaDtfi.GetEraName(i), TokenType.JapaneseEraToken, i);
+                        InsertHash(temp, jaDtfi.GetAbbreviatedEraName(i), TokenType.JapaneseEraToken, i);
+                        // m_abbrevEnglishEraNames[0] contains the name for era 1, so the token value is i+1.
+                        InsertHash(temp, jaDtfi.AbbreviatedEnglishEraNames[i - 1], TokenType.JapaneseEraToken, i);
+                    }
+                }
+            }
+            // TODO: This prohibits similar custom cultures, but we hard coded the name
+            else if (CultureName.Equals("zh-TW"))
+            {
+                DateTimeFormatInfo twDtfi = GetTaiwanCalendarDTFI();
+                for (int i = 1; i <= twDtfi.Calendar.Eras.Length; i++)
+                {
+                    if (twDtfi.GetEraName(i).Length > 0)
+                    {
+                        InsertHash(temp, twDtfi.GetEraName(i), TokenType.TEraToken, i);
                     }
                 }
             }
