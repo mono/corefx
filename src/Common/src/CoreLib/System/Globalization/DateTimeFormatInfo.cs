@@ -2320,47 +2320,12 @@ namespace System.Globalization
                 InsertHash(temp, this.AMDesignator, TokenType.SEP_Am | TokenType.Am, 0);
                 InsertHash(temp, this.PMDesignator, TokenType.SEP_Pm | TokenType.Pm, 1);
 
-                // TODO: This ignores similar custom cultures
-                if (!GlobalizationMode.Invariant && LanguageName.Equals("sq"))
-                {
-                    // Albanian allows time formats like "12:00.PD"
-                    InsertHash(temp, IgnorablePeriod + this.AMDesignator, TokenType.SEP_Am | TokenType.Am, 0);
-                    InsertHash(temp, IgnorablePeriod + this.PMDesignator, TokenType.SEP_Pm | TokenType.Pm, 1);
-                }
+                // For some cultures, the date separator works more like a comma, being allowed before or after any date part.
+                // In these cultures, we do not use normal date separator since we disallow date separator after a date terminal state.
+                // This is determined in DateTimeFormatInfoScanner.  Use this flag to determine if we should treat date separator as ignorable symbol.
+                bool useDateSepAsIgnorableSymbol = false;
 
-                if (!GlobalizationMode.Invariant)
-                {
-                    // CJK suffix
-                    InsertHash(temp, CJKYearSuff, TokenType.SEP_YearSuff, 0);
-                    InsertHash(temp, KoreanYearSuff, TokenType.SEP_YearSuff, 0);
-                    InsertHash(temp, CJKMonthSuff, TokenType.SEP_MonthSuff, 0);
-                    InsertHash(temp, KoreanMonthSuff, TokenType.SEP_MonthSuff, 0);
-                    InsertHash(temp, CJKDaySuff, TokenType.SEP_DaySuff, 0);
-                    InsertHash(temp, KoreanDaySuff, TokenType.SEP_DaySuff, 0);
-
-                    InsertHash(temp, CJKHourSuff, TokenType.SEP_HourSuff, 0);
-                    InsertHash(temp, ChineseHourSuff, TokenType.SEP_HourSuff, 0);
-                    InsertHash(temp, CJKMinuteSuff, TokenType.SEP_MinuteSuff, 0);
-                    InsertHash(temp, CJKSecondSuff, TokenType.SEP_SecondSuff, 0);
-
-                    if (!AppContextSwitches.EnforceLegacyJapaneseDateParsing && Calendar.ID == (int)CalendarId.JAPAN)
-                    {
-                        // We need to support parsing the dates has the start of era symbol which means it is year 1 in the era.
-                        // The start of era symbol has to be followed by the year symbol suffix, otherwise it would be invalid date.
-                        InsertHash(temp, JapaneseEraStart, TokenType.YearNumberToken, 1);
-                        InsertHash(temp, "(", TokenType.IgnorableSymbol, 0);
-                        InsertHash(temp, ")", TokenType.IgnorableSymbol, 0);
-                    }
-
-                    // TODO: This ignores other custom cultures that might want to do something similar
-                    if (koreanLanguage)
-                    {
-                        // Korean suffix
-                        InsertHash(temp, KoreanHourSuff, TokenType.SEP_HourSuff, 0);
-                        InsertHash(temp, KoreanMinuteSuff, TokenType.SEP_MinuteSuff, 0);
-                        InsertHash(temp, KoreanSecondSuff, TokenType.SEP_SecondSuff, 0);
-                    }
-                }
+                PopulateSpecialCalendars(temp, ref useDateSepAsIgnorableSymbol);
 
                 if (!GlobalizationMode.Invariant && LanguageName.Equals("ky"))
                 {
@@ -2370,62 +2335,6 @@ namespace System.Globalization
                 else
                 {
                     InsertHash(temp, dateSeparatorOrTimeZoneOffset, TokenType.SEP_DateOrOffset, 0);
-                }
-
-                String[] dateWords = null;
-                DateTimeFormatInfoScanner scanner = null;
-
-                if (!GlobalizationMode.Invariant)
-                {
-                    // We need to rescan the date words since we're always synthetic
-                    scanner = new DateTimeFormatInfoScanner();
-                    dateWords = scanner.GetDateWordsOfDTFI(this);
-                }
-
-                // Ensure the formatflags is initialized.
-                DateTimeFormatFlags flag = FormatFlags;
-
-                // For some cultures, the date separator works more like a comma, being allowed before or after any date part.
-                // In these cultures, we do not use normal date separator since we disallow date separator after a date terminal state.
-                // This is determined in DateTimeFormatInfoScanner.  Use this flag to determine if we should treat date separator as ignorable symbol.
-                bool useDateSepAsIgnorableSymbol = false;
-
-                String monthPostfix = null;
-                if (!GlobalizationMode.Invariant && dateWords != null)
-                {
-                    // There are DateWords.  It could be a real date word (such as "de"), or a monthPostfix.
-                    // The monthPostfix starts with '\xfffe' (MonthPostfixChar), followed by the real monthPostfix.
-                    for (int i = 0; i < dateWords.Length; i++)
-                    {
-                        switch (dateWords[i][0])
-                        {
-                            // This is a month postfix
-                            case DateTimeFormatInfoScanner.MonthPostfixChar:
-                                // Get the real month postfix.
-                                monthPostfix = dateWords[i].Substring(1);
-                                // Add the month name + postfix into the token.
-                                AddMonthNames(temp, monthPostfix);
-                                break;
-                            case DateTimeFormatInfoScanner.IgnorableSymbolChar:
-                                String symbol = dateWords[i].Substring(1);
-                                InsertHash(temp, symbol, TokenType.IgnorableSymbol, 0);
-                                if (this.DateSeparator.Trim(null).Equals(symbol))
-                                {
-                                    // The date separator is the same as the ignorable symbol.
-                                    useDateSepAsIgnorableSymbol = true;
-                                }
-                                break;
-                            default:
-                                InsertHash(temp, dateWords[i], TokenType.DateWordToken, 0);
-                                // TODO: This ignores similar custom cultures
-                                if (LanguageName.Equals("eu"))
-                                {
-                                    // Basque has date words with leading dots
-                                    InsertHash(temp, IgnorablePeriod + dateWords[i], TokenType.DateWordToken, 0);
-                                }
-                                break;
-                        }
-                    }
                 }
 
                 if (!useDateSepAsIgnorableSymbol)
@@ -2559,6 +2468,92 @@ namespace System.Globalization
                 _dtfiTokenHash = temp;
             }
             return (temp);
+        }
+
+        private void PopulateSpecialCalendars(TokenHashValue[] temp, ref bool useDateSepAsIgnorableSymbol)
+        {
+            // TODO: This ignores similar custom cultures
+            if (LanguageName.Equals("sq"))
+            {
+                // Albanian allows time formats like "12:00.PD"
+                InsertHash(temp, IgnorablePeriod + this.AMDesignator, TokenType.SEP_Am | TokenType.Am, 0);
+                InsertHash(temp, IgnorablePeriod + this.PMDesignator, TokenType.SEP_Pm | TokenType.Pm, 1);
+            }
+
+            // CJK suffix
+            InsertHash(temp, CJKYearSuff, TokenType.SEP_YearSuff, 0);
+            InsertHash(temp, KoreanYearSuff, TokenType.SEP_YearSuff, 0);
+            InsertHash(temp, CJKMonthSuff, TokenType.SEP_MonthSuff, 0);
+            InsertHash(temp, KoreanMonthSuff, TokenType.SEP_MonthSuff, 0);
+            InsertHash(temp, CJKDaySuff, TokenType.SEP_DaySuff, 0);
+            InsertHash(temp, KoreanDaySuff, TokenType.SEP_DaySuff, 0);
+
+            InsertHash(temp, CJKHourSuff, TokenType.SEP_HourSuff, 0);
+            InsertHash(temp, ChineseHourSuff, TokenType.SEP_HourSuff, 0);
+            InsertHash(temp, CJKMinuteSuff, TokenType.SEP_MinuteSuff, 0);
+            InsertHash(temp, CJKSecondSuff, TokenType.SEP_SecondSuff, 0);
+
+            if (!AppContextSwitches.EnforceLegacyJapaneseDateParsing && Calendar.ID == (int)CalendarId.JAPAN)
+            {
+                // We need to support parsing the dates has the start of era symbol which means it is year 1 in the era.
+                // The start of era symbol has to be followed by the year symbol suffix, otherwise it would be invalid date.
+                InsertHash(temp, JapaneseEraStart, TokenType.YearNumberToken, 1);
+                InsertHash(temp, "(", TokenType.IgnorableSymbol, 0);
+                InsertHash(temp, ")", TokenType.IgnorableSymbol, 0);
+            }
+
+            // TODO: This ignores other custom cultures that might want to do something similar
+            if (LanguageName.Equals(KoreanLangName))
+            {
+                // Korean suffix
+                InsertHash(temp, KoreanHourSuff, TokenType.SEP_HourSuff, 0);
+                InsertHash(temp, KoreanMinuteSuff, TokenType.SEP_MinuteSuff, 0);
+                InsertHash(temp, KoreanSecondSuff, TokenType.SEP_SecondSuff, 0);
+            }
+
+            DateTimeFormatInfoScanner scanner = new DateTimeFormatInfoScanner();
+            String[] dateWords = scanner.GetDateWordsOfDTFI(this);
+
+            // Ensure the formatflags is initialized.
+            DateTimeFormatFlags flag = FormatFlags;
+
+            String monthPostfix = null;
+            if (dateWords != null)
+            {
+                // There are DateWords.  It could be a real date word (such as "de"), or a monthPostfix.
+                // The monthPostfix starts with '\xfffe' (MonthPostfixChar), followed by the real monthPostfix.
+                for (int i = 0; i < dateWords.Length; i++)
+                {
+                    switch (dateWords[i][0])
+                    {
+                        // This is a month postfix
+                        case DateTimeFormatInfoScanner.MonthPostfixChar:
+                            // Get the real month postfix.
+                            monthPostfix = dateWords[i].Substring(1);
+                            // Add the month name + postfix into the token.
+                            AddMonthNames(temp, monthPostfix);
+                            break;
+                        case DateTimeFormatInfoScanner.IgnorableSymbolChar:
+                            String symbol = dateWords[i].Substring(1);
+                            InsertHash(temp, symbol, TokenType.IgnorableSymbol, 0);
+                            if (this.DateSeparator.Trim(null).Equals(symbol))
+                            {
+                                // The date separator is the same as the ignorable symbol.
+                                useDateSepAsIgnorableSymbol = true;
+                            }
+                            break;
+                        default:
+                            InsertHash(temp, dateWords[i], TokenType.DateWordToken, 0);
+                            // TODO: This ignores similar custom cultures
+                            if (LanguageName.Equals("eu"))
+                            {
+                                // Basque has date words with leading dots
+                                InsertHash(temp, IgnorablePeriod + dateWords[i], TokenType.DateWordToken, 0);
+                            }
+                            break;
+                    }
+                }
+            }
         }
 
         private static bool IsJapaneseCalendar(Calendar calendar)
