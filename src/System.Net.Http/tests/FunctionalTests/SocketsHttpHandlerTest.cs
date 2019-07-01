@@ -538,14 +538,14 @@ namespace System.Net.Http.Functional.Tests
                     (await invoker.SendAsync(request, default)).Dispose();
                     sw.Stop();
 
-                    Assert.InRange(sw.Elapsed, delay - TimeSpan.FromSeconds(.5), delay * 10); // arbitrary wiggle room
+                    Assert.InRange(sw.Elapsed, delay - TimeSpan.FromSeconds(.5), delay * 20); // arbitrary wiggle room
                 }
             }, async server =>
             {
                 await server.AcceptConnectionAsync(async connection =>
                 {
                     await connection.ReadRequestHeaderAsync();
-                    await connection.Reader.ReadAsync(new char[1]);
+                    await connection.ReadAsync(new byte[1], 0, 1);
                     await connection.SendResponseAsync();
                 });
             });
@@ -677,19 +677,19 @@ namespace System.Net.Http.Functional.Tests
 
                             clientStream.WriteByte((byte)'!');
                             clientStream.Write(new byte[] { (byte)'\r', (byte)'\n' }, 0, 2);
-                            Assert.Equal("!", await connection.Reader.ReadLineAsync());
+                            Assert.Equal("!", await connection.ReadLineAsync());
 
                             clientStream.Write(new Span<byte>(new byte[] { (byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o', (byte)'\r', (byte)'\n' }));
-                            Assert.Equal("hello", await connection.Reader.ReadLineAsync());
+                            Assert.Equal("hello", await connection.ReadLineAsync());
 
                             await clientStream.WriteAsync(new byte[] { (byte)'w', (byte)'o', (byte)'r', (byte)'l', (byte)'d', (byte)'\r', (byte)'\n' }, 0, 7);
-                            Assert.Equal("world", await connection.Reader.ReadLineAsync());
+                            Assert.Equal("world", await connection.ReadLineAsync());
 
                             await clientStream.WriteAsync(new Memory<byte>(new byte[] { (byte)'a', (byte)'n', (byte)'d', (byte)'\r', (byte)'\n' }, 0, 5));
-                            Assert.Equal("and", await connection.Reader.ReadLineAsync());
+                            Assert.Equal("and", await connection.ReadLineAsync());
 
                             await Task.Factory.FromAsync(clientStream.BeginWrite, clientStream.EndWrite, new byte[] { (byte)'b', (byte)'e', (byte)'y', (byte)'o', (byte)'n', (byte)'d', (byte)'\r', (byte)'\n' }, 0, 8, null);
-                            Assert.Equal("beyond", await connection.Reader.ReadLineAsync());
+                            Assert.Equal("beyond", await connection.ReadLineAsync());
 
                             clientStream.Flush();
                             await clientStream.FlushAsync();
@@ -773,7 +773,6 @@ namespace System.Net.Http.Functional.Tests
 
                             TextReader clientReader = new StreamReader(clientStream);
                             TextWriter clientWriter = new StreamWriter(clientStream) { AutoFlush = true };
-                            TextReader serverReader = connection.Reader;
                             TextWriter serverWriter = connection.Writer;
 
                             const string helloServer = "hello server";
@@ -782,11 +781,11 @@ namespace System.Net.Http.Functional.Tests
                             const string goodbyeClient = "goodbye client";
 
                             clientWriter.WriteLine(helloServer);
-                            Assert.Equal(helloServer, serverReader.ReadLine());
+                            Assert.Equal(helloServer, connection.ReadLine());
                             serverWriter.WriteLine(helloClient);
                             Assert.Equal(helloClient, clientReader.ReadLine());
                             clientWriter.WriteLine(goodbyeServer);
-                            Assert.Equal(goodbyeServer, serverReader.ReadLine());
+                            Assert.Equal(goodbyeServer, connection.ReadLine());
                             serverWriter.WriteLine(goodbyeClient);
                             Assert.Equal(goodbyeClient, clientReader.ReadLine());
                         }
