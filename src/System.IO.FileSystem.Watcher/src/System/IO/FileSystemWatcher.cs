@@ -398,17 +398,9 @@ namespace System.IO
         /// on the desktop still needs to support the netfx behavior. 
         /// EffectivelyEmpty means an empty span, null, or just spaces ((char)32).        
         /// </summary>
-        private bool IsEffectivelyEmpty(ReadOnlySpan<char> path)
+        private static bool IsEffectivelyEmpty(ReadOnlySpan<char> path)
         {
-            if (path.IsEmpty)
-                return true;
-
-            foreach (char c in path)
-            {
-                if (c != ' ')
-                    return false;
-            }
-            return true;
+            return (path.IsEmpty || path.IndexOf(' ') > -1);
         }
 #endif
 
