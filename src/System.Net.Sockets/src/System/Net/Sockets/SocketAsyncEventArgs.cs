@@ -9,6 +9,10 @@ using System.Threading;
 
 namespace System.Net.Sockets
 {
+#if MONO
+    using Internals = System.Net;
+#endif
+
     public partial class SocketAsyncEventArgs : EventArgs, IDisposable
     {
         // AcceptSocket property variables.
@@ -723,6 +727,7 @@ namespace System.Net.Sockets
                     }
                     break;
 
+#if MARTIN_FIXME
                 case SocketAsyncOperation.Disconnect:
                     _currentSocket.SetToDisconnected();
                     _currentSocket._remoteEndPoint = null;
@@ -765,6 +770,7 @@ namespace System.Net.Sockets
                 case SocketAsyncOperation.SendPackets:
                     FinishOperationSendPackets();
                     break;
+#endif
             }
 
             Complete();

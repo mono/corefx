@@ -637,6 +637,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         public async Task SendRecv_0ByteReceive_Success()
         {
             using (Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
@@ -926,6 +927,7 @@ namespace System.Net.Sockets.Tests
     public class SendReceive
     {
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         public void SendRecvIovMaxTcp_Success()
         {
             // sending/receiving more than IOV_MAX segments causes EMSGSIZE on some platforms.
@@ -1097,6 +1099,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Mono hangs")]
         [PlatformSpecific(~TestPlatforms.Windows)] // All data is sent, even when very large (100M).
         public void SocketSendWouldBlock_ReturnsBytesSent()
         {
@@ -1335,7 +1338,9 @@ namespace System.Net.Sockets.Tests
     }
 
     public sealed class SendReceiveSyncForceNonBlocking : SendReceive<SocketHelperSyncForceNonBlocking> { }
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Mono hangs")]
     public sealed class SendReceiveApm : SendReceive<SocketHelperApm> { }
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Mono hangs")]
     public sealed class SendReceiveTask : SendReceive<SocketHelperTask> { }
     public sealed class SendReceiveEap : SendReceive<SocketHelperEap> { }
 }

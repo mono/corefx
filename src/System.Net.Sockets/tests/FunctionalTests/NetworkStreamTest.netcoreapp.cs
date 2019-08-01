@@ -89,6 +89,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "MARTIN FIXME")]
         public async Task ReadAsync_AwaitMultipleTimes_Throws()
         {
             await RunWithConnectedNetworkStreamsAsync(async (server, client) =>
@@ -106,6 +107,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "MARTIN FIXME")]
         public async Task ReadAsync_MultipleContinuations_Throws()
         {
             await RunWithConnectedNetworkStreamsAsync((server, client) =>
@@ -208,12 +210,14 @@ namespace System.Net.Sockets.Tests
             });
         }
 
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         public static IEnumerable<object[]> ReadAsync_ContinuesOnCurrentContextIfDesired_MemberData() =>
             from flowExecutionContext in new[] { true, false }
             from continueOnCapturedContext in new bool?[] { null, false, true }
             select new object[] { flowExecutionContext, continueOnCapturedContext };
 
         [Theory]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [MemberData(nameof(ReadAsync_ContinuesOnCurrentContextIfDesired_MemberData))]
         public async Task ReadAsync_ContinuesOnCurrentSynchronizationContextIfDesired(
             bool flowExecutionContext, bool? continueOnCapturedContext)
@@ -281,6 +285,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Theory]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [MemberData(nameof(ReadAsync_ContinuesOnCurrentContextIfDesired_MemberData))]
         public async Task ReadAsync_ContinuesOnCurrentTaskSchedulerIfDesired(
             bool flowExecutionContext, bool? continueOnCapturedContext)

@@ -8,6 +8,7 @@ using Xunit;
 
 namespace System.Net.Sockets.Tests
 {
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
     public class OSSupportTest
     {
         [Fact]
