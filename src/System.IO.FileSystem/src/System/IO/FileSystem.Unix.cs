@@ -25,7 +25,7 @@ namespace System.IO
             Interop.ErrorInfo errorInfo;
             // get the target of the symlink
             string linkTarget = Interop.Sys.ReadLink(sourceFullPath);
-            if (linkTarget is null)
+            if (linkTarget == null)
             {
                 errorInfo = Interop.Sys.GetLastErrorInfo();
                 throw Interop.GetExceptionForIoErrno(errorInfo, sourceFullPath);
