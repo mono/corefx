@@ -68,7 +68,11 @@ namespace System.Net.Sockets
         private int _acceptAddressBufferCount;
 
         // Internal SocketAddress buffer.
+#if MONO
+        internal SocketAddress _socketAddress;
+#else
         internal Internals.SocketAddress _socketAddress;
+#endif
 
         // Misc state variables.
         private readonly bool _flowExecutionContext;
@@ -688,7 +692,11 @@ namespace System.Net.Sockets
             {
                 case SocketAsyncOperation.Accept:
                     // Get the endpoint.
+#if MONO
+                    SocketAddress remoteSocketAddress = IPEndPointExtensions.Serialize(_currentSocket._rightEndPoint);
+#else
                     Internals.SocketAddress remoteSocketAddress = IPEndPointExtensions.Serialize(_currentSocket._rightEndPoint);
+#endif
 
                     socketError = FinishOperationAccept(remoteSocketAddress);
 
@@ -731,7 +739,11 @@ namespace System.Net.Sockets
                 case SocketAsyncOperation.ReceiveFrom:
                     // Deal with incoming address.
                     _socketAddress.InternalSize = GetSocketAddressSize();
+#if MONO
+                    SocketAddress socketAddressOriginal = IPEndPointExtensions.Serialize(_remoteEndPoint);
+#else
                     Internals.SocketAddress socketAddressOriginal = IPEndPointExtensions.Serialize(_remoteEndPoint);
+#endif
                     if (!socketAddressOriginal.Equals(_socketAddress))
                     {
                         try
