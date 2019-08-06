@@ -366,6 +366,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "SocketOptionName.ExclusiveAddressUse is 0 in Mono.")]
         [PlatformSpecific(TestPlatforms.AnyUnix)] // Windows defaults are different
         public void ExclusiveAddress_Default_Unix()
         {
@@ -380,6 +381,7 @@ namespace System.Net.Sockets.Tests
         [Theory]
         [InlineData(1)]
         [InlineData(0)]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [PlatformSpecific(TestPlatforms.AnyUnix)] // Unix does not have separate options for ExclusiveAddressUse and ReuseAddress.
         public void SettingExclusiveAddress_SetsReuseAddress(int value)
         {

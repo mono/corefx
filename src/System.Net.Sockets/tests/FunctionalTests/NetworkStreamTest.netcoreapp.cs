@@ -89,6 +89,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "MARTIN FIXME")]
         public async Task ReadAsync_AwaitMultipleTimes_Throws()
         {
             await RunWithConnectedNetworkStreamsAsync(async (server, client) =>
@@ -106,6 +107,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "MARTIN FIXME")]
         public async Task ReadAsync_MultipleContinuations_Throws()
         {
             await RunWithConnectedNetworkStreamsAsync((server, client) =>
