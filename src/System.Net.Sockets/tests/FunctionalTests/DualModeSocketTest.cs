@@ -38,7 +38,8 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
-        public void NormalConstructor_DualModeConfgiureable()
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
+        public void NormalConstructor_DualModeConfigureable()
         {
             using (Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -283,6 +284,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Theory]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [MemberData(nameof(DualMode_IPAddresses_ListenOn_DualMode_Success_Data))]
         public void DualModeConnect_IPAddressListToHost_Success(IPAddress[] connectTo, IPAddress listenOn, bool dualModeServer)
         {
@@ -299,6 +301,7 @@ namespace System.Net.Sockets.Tests
     [Trait("IPv6", "true")]
     public class DualModeConnectToHostString : DualModeBase
     {
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [ConditionalTheory(nameof(LocalhostIsBothIPv4AndIPv6))]
         [MemberData(nameof(DualMode_Connect_IPAddress_DualMode_Data))]
         public void DualModeConnect_LoopbackDnsToHost_Helper(IPAddress listenOn, bool dualModeServer)
@@ -316,6 +319,7 @@ namespace System.Net.Sockets.Tests
     [Trait("IPv6", "true")]
     public class DualModeConnectToDnsEndPoint : DualModeBase
     {
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [ConditionalTheory(nameof(LocalhostIsBothIPv4AndIPv6))]
         [MemberData(nameof(DualMode_Connect_IPAddress_DualMode_Data))]
         public void DualModeConnect_DnsEndPointToHost_Helper(IPAddress listenOn, bool dualModeServer)
@@ -397,6 +401,7 @@ namespace System.Net.Sockets.Tests
     {
         [Fact] // Base case
         // "The system detected an invalid pointer address in attempting to use a pointer argument in a call"
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         public void Socket_BeginConnectV4IPEndPointToV4Host_Throws()
         {
             using (Socket socket = new Socket(SocketType.Stream, ProtocolType.Tcp))
@@ -450,6 +455,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Theory]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [MemberData(nameof(DualMode_Connect_IPAddress_DualMode_Data))]
         [PlatformSpecific(TestPlatforms.Windows)]  // Connecting sockets to DNS endpoints via the instance Connect and ConnectAsync methods not supported on Unix
         public async Task DualModeBeginConnect_LoopbackDnsToHost_Helper(IPAddress listenOn, bool dualModeServer)
@@ -481,6 +487,7 @@ namespace System.Net.Sockets.Tests
     public class DualModeConnectAsync : DualModeBase
     {
         [Fact] // Base case
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         public void Socket_ConnectAsyncV4IPEndPointToV4Host_Throws()
         {
             using (Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp))
@@ -626,6 +633,7 @@ namespace System.Net.Sockets.Tests
     public class DualModeBind : DualModeBase
     {
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         public void Socket_BindV4IPEndPoint_Throws()
         {
             Assert.Throws<SocketException>(() =>
