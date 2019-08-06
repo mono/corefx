@@ -8,6 +8,7 @@ using Xunit;
 
 namespace System.Net.Sockets.Tests
 {
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
     public class IPPacketInformationTest
     {
         [SkipOnTargetFramework(TargetFrameworkMonikers.NetFramework, "Bug in IPPacketInformation.Equals that dereferences null address")]
