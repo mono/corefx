@@ -435,7 +435,7 @@ namespace System.IO
                         // The base FileSystemWatcher does a match check against the relative path before combining with 
                         // the root dir; however, null is special cased to signify the root dir, so check if we should use that.
                         ReadOnlySpan<char> relativePath = ReadOnlySpan<char>.Empty;
-                        if (!path.Equals(_fullDirectory, StringComparison.OrdinalIgnoreCase))
+                        if (!path.Equals(_fullDirectory, StringComparison.OrdinalIgnoreCase) && path.Length >= _fullDirectory.Length)
                         {
                             // Remove the root directory to get the relative path
                             relativePath = path.Slice(_fullDirectory.Length);
@@ -479,9 +479,17 @@ namespace System.IO
                             else
                             {
                                 // Remove the base directory prefix and add the paired event to the list of 
-                                // events to skip and notify the user of the rename 
-                                ReadOnlySpan<char> newPathRelativeName = events[pairedId].Span.Slice(_fullDirectory.Length);
-                                watcher.NotifyRenameEventArgs(WatcherChangeTypes.Renamed, newPathRelativeName, relativePath);
+                                // events to skip and notify the user of the rename
+                                if (events[pairedId].Span.Length >= _fullDirectory.Length)
+                                {
+                                    ReadOnlySpan<char> newPathRelativeName = events[pairedId].Span.Slice(_fullDirectory.Length);
+                                    watcher.NotifyRenameEventArgs(WatcherChangeTypes.Renamed, newPathRelativeName, relativePath);
+                                }
+                                else
+                                {
+                                    //if the base directory prefix isn't there, just use the full absolute path
+                                    watcher.NotifyRenameEventArgs(WatcherChangeTypes.Renamed, events[pairedId].Span, relativePath);
+                                }
 
                                 // Create a new list, if necessary, and add the event
                                 if (handledRenameEvents == null)
