@@ -546,6 +546,7 @@ namespace System.Net.Sockets
 
         partial void StartOperationCommonCore();
 
+#if !MONO
         internal void StartOperationAccept()
         {
             // AcceptEx needs a single buffer that's the size of two native sockaddr buffers with 16
@@ -575,6 +576,7 @@ namespace System.Net.Sockets
                 }
             }
         }
+#endif
 
         internal void StartOperationConnect(MultipleConnectAsync multipleConnect = null)
         {
@@ -690,6 +692,7 @@ namespace System.Net.Sockets
             SocketError socketError = SocketError.Success;
             switch (_completedOperation)
             {
+#if MARTIN_FIXME
                 case SocketAsyncOperation.Accept:
                     // Get the endpoint.
 #if MONO
@@ -713,12 +716,15 @@ namespace System.Net.Sockets
                         _currentSocket.UpdateStatusAfterSocketError(socketError);
                     }
                     break;
+#endif
 
                 case SocketAsyncOperation.Connect:
                     socketError = FinishOperationConnect();
                     if (socketError == SocketError.Success)
                     {
+#if !MONO
                         if (NetEventSource.IsEnabled) NetEventSource.Connected(_currentSocket, _currentSocket.LocalEndPoint, _currentSocket.RemoteEndPoint);
+#endif
 
                         // Mark socket connected.
                         _currentSocket.SetToConnected();
@@ -731,6 +737,7 @@ namespace System.Net.Sockets
                     }
                     break;
 
+#if MARTIN_FIXME
                 case SocketAsyncOperation.Disconnect:
                     _currentSocket.SetToDisconnected();
                     _currentSocket._remoteEndPoint = null;
@@ -777,6 +784,7 @@ namespace System.Net.Sockets
                 case SocketAsyncOperation.SendPackets:
                     FinishOperationSendPackets();
                     break;
+#endif
             }
 
             Complete();
