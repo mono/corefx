@@ -435,7 +435,9 @@ namespace System.IO
                         // The base FileSystemWatcher does a match check against the relative path before combining with 
                         // the root dir; however, null is special cased to signify the root dir, so check if we should use that.
                         ReadOnlySpan<char> relativePath = ReadOnlySpan<char>.Empty;
-                        if (!path.Equals(_fullDirectory, StringComparison.OrdinalIgnoreCase) && path.Length >= _fullDirectory.Length)
+                        if (!path.Equals(_fullDirectory, StringComparison.OrdinalIgnoreCase)
+                            && path.Length >= _fullDirectory.Length
+                            && _fullDirectory.AsSpan().Equals(path.Slice(_fullDirectory.Length), StringComparison.OrdinalIgnoreCase))
                         {
                             // Remove the root directory to get the relative path
                             relativePath = path.Slice(_fullDirectory.Length);
@@ -480,7 +482,8 @@ namespace System.IO
                             {
                                 // Remove the base directory prefix and add the paired event to the list of 
                                 // events to skip and notify the user of the rename
-                                if (events[pairedId].Span.Length >= _fullDirectory.Length)
+                                if (events[pairedId].Span.Length >= _fullDirectory.Length
+                                    && ((ReadOnlySpan<char>) events[pairedId].Span).Equals(_fullDirectory.AsSpan(0, events[pairedId].Span.Length), StringComparison.OrdinalIgnoreCase))
                                 {
                                     ReadOnlySpan<char> newPathRelativeName = events[pairedId].Span.Slice(_fullDirectory.Length);
                                     watcher.NotifyRenameEventArgs(WatcherChangeTypes.Renamed, newPathRelativeName, relativePath);
