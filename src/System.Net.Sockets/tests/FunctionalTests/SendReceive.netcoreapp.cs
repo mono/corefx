@@ -10,6 +10,7 @@ namespace System.Net.Sockets.Tests
 {
     public sealed class SendReceiveSpanSync : SendReceive<SocketHelperSpanSync> { }
     public sealed class SendReceiveSpanSyncForceNonBlocking : SendReceive<SocketHelperSpanSyncForceNonBlocking> { }
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Stack Overflow!")]
     public sealed class SendReceiveMemoryArrayTask : SendReceive<SocketHelperMemoryArrayTask>
     {
         [Fact]
@@ -55,5 +56,6 @@ namespace System.Net.Sockets.Tests
             }
         }
     }
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Stack Overflow!")]
     public sealed class SendReceiveMemoryNativeTask : SendReceive<SocketHelperMemoryNativeTask> { }
 }
