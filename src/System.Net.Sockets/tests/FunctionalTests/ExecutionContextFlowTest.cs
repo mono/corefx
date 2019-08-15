@@ -9,6 +9,7 @@ using Xunit;
 
 namespace System.Net.Sockets.Tests
 {
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
     public partial class ExecutionContextFlowTest : FileCleanupTestBase
     {
         [Theory]

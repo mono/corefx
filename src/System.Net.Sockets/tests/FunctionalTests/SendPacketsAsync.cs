@@ -11,6 +11,7 @@ using Xunit.Abstractions;
 
 namespace System.Net.Sockets.Tests
 {
+    [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
     public class SendPacketsAsync
     {
         private readonly ITestOutputHelper _log;

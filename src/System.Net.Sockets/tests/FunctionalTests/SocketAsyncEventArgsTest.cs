@@ -36,6 +36,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "SendPacketsSendSize is ignored")]
         public void SendPacketsSendSize_Roundtrips()
         {
             using (var args = new SocketAsyncEventArgs())
@@ -103,6 +104,7 @@ namespace System.Net.Sockets.Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "Crashes the xunit test runner")]
         public async Task ExecutionContext_FlowsIfNotSuppressed(bool suppressed)
         {
             using (var listen = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))

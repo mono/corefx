@@ -172,6 +172,7 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         public void Connect_IPAddress_InvalidAddressFamily_Throws_NotSupported()
         {
             Assert.Throws<NotSupportedException>(() => GetSocket(AddressFamily.InterNetwork).Connect(IPAddress.IPv6Loopback, 1));
@@ -396,7 +397,7 @@ namespace System.Net.Sockets.Tests
             Assert.Throws<ArgumentNullException>(() => GetSocket().ReceiveMessageFrom(s_buffer, 0, 0, ref flags, ref remote, out packetInfo));
         }
 
-        [Fact]
+        [ConditionalFact(nameof(PlatformSupportsSocketMessages))]
         public void ReceiveMessageFrom_AddressFamily_Throws_Argument()
         {
             SocketFlags flags = SocketFlags.None;
@@ -429,7 +430,7 @@ namespace System.Net.Sockets.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => GetSocket().ReceiveMessageFrom(s_buffer, s_buffer.Length, 1, ref flags, ref remote, out packetInfo));
         }
 
-        [Fact]
+        [ConditionalFact(nameof(PlatformSupportsSocketMessages))]
         public void ReceiveMessageFrom_NotBound_Throws_InvalidOperation()
         {
             SocketFlags flags = SocketFlags.None;
@@ -1417,5 +1418,7 @@ namespace System.Net.Sockets.Tests
         {
             Assert.Throws<ArgumentNullException>(() => Socket.CancelConnectAsync(null));
         }
+
+        private static bool PlatformSupportsSocketMessages => PlatformDetection.PlatformSupportsSocketMessages;
     }
 }

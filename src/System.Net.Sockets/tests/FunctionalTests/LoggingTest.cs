@@ -13,6 +13,7 @@ namespace System.Net.Sockets.Tests
     {
         [Fact]
         [ActiveIssue(20470, TargetFrameworkMonikers.UapAot)]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "NetEventSource is only part of .NET Core.")]
         [SkipOnTargetFramework(TargetFrameworkMonikers.NetFramework, "NetEventSource is only part of .NET Core.")]
         public static void EventSource_ExistsWithCorrectId()
         {
@@ -28,6 +29,7 @@ namespace System.Net.Sockets.Tests
         [OuterLoop]
         [Fact]
         [ActiveIssue(20470, TargetFrameworkMonikers.UapAot)]
+        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono, "NetEventSource is only part of .NET Core.")]
         [SkipOnTargetFramework(TargetFrameworkMonikers.NetFramework, "NetEventSource is only part of .NET Core.")]
         public void EventSource_EventsRaisedAsExpected()
         {
