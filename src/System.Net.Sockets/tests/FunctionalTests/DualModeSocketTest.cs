@@ -284,7 +284,6 @@ namespace System.Net.Sockets.Tests
         }
 
         [Theory]
-        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [MemberData(nameof(DualMode_IPAddresses_ListenOn_DualMode_Success_Data))]
         public void DualModeConnect_IPAddressListToHost_Success(IPAddress[] connectTo, IPAddress listenOn, bool dualModeServer)
         {
@@ -301,7 +300,6 @@ namespace System.Net.Sockets.Tests
     [Trait("IPv6", "true")]
     public class DualModeConnectToHostString : DualModeBase
     {
-        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [ConditionalTheory(nameof(LocalhostIsBothIPv4AndIPv6))]
         [MemberData(nameof(DualMode_Connect_IPAddress_DualMode_Data))]
         public void DualModeConnect_LoopbackDnsToHost_Helper(IPAddress listenOn, bool dualModeServer)
@@ -319,7 +317,6 @@ namespace System.Net.Sockets.Tests
     [Trait("IPv6", "true")]
     public class DualModeConnectToDnsEndPoint : DualModeBase
     {
-        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [ConditionalTheory(nameof(LocalhostIsBothIPv4AndIPv6))]
         [MemberData(nameof(DualMode_Connect_IPAddress_DualMode_Data))]
         public void DualModeConnect_DnsEndPointToHost_Helper(IPAddress listenOn, bool dualModeServer)
@@ -443,7 +440,7 @@ namespace System.Net.Sockets.Tests
     {
         [Theory]
         [MemberData(nameof(DualMode_IPAddresses_ListenOn_DualMode_Data))]
-        [PlatformSpecific(TestPlatforms.Windows)]  // Connecting sockets to DNS endpoints via the instance Connect and ConnectAsync methods not supported on Unix
+//        [PlatformSpecific(TestPlatforms.Windows)]  // Connecting sockets to DNS endpoints via the instance Connect and ConnectAsync methods not supported on Unix
         private async Task DualModeBeginConnect_IPAddressListToHost_Helper(IPAddress[] connectTo, IPAddress listenOn, bool dualModeServer)
         {
             using (Socket socket = new Socket(SocketType.Stream, ProtocolType.Tcp))
@@ -455,9 +452,8 @@ namespace System.Net.Sockets.Tests
         }
 
         [Theory]
-        [SkipOnTargetFramework(TargetFrameworkMonikers.Mono)]
         [MemberData(nameof(DualMode_Connect_IPAddress_DualMode_Data))]
-        [PlatformSpecific(TestPlatforms.Windows)]  // Connecting sockets to DNS endpoints via the instance Connect and ConnectAsync methods not supported on Unix
+//        [PlatformSpecific(TestPlatforms.Windows)]  // Connecting sockets to DNS endpoints via the instance Connect and ConnectAsync methods not supported on Unix
         public async Task DualModeBeginConnect_LoopbackDnsToHost_Helper(IPAddress listenOn, bool dualModeServer)
         {
             using (Socket socket = new Socket(SocketType.Stream, ProtocolType.Tcp))
@@ -470,7 +466,7 @@ namespace System.Net.Sockets.Tests
 
         [Theory]
         [MemberData(nameof(DualMode_Connect_IPAddress_DualMode_Data))]
-        [PlatformSpecific(TestPlatforms.Windows)]  // Connecting sockets to DNS endpoints via the instance Connect and ConnectAsync methods not supported on Unix
+//        [PlatformSpecific(TestPlatforms.Windows)]  // Connecting sockets to DNS endpoints via the instance Connect and ConnectAsync methods not supported on Unix
         public async Task DualModeBeginConnect_DnsEndPointToHost_Helper(IPAddress listenOn, bool dualModeServer)
         {
             using (Socket socket = new Socket(SocketType.Stream, ProtocolType.Tcp))
