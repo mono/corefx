@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace System.Net.Sockets
 {
+#if MONO
+    using Internals = System.Net;
+#endif
+
     public partial class SocketAsyncEventArgs : EventArgs, IDisposable
     {
         private IntPtr _acceptedFileDescriptor;
@@ -104,6 +108,7 @@ namespace System.Net.Sockets
             return socketError;
         }
 
+#if !MONO
         internal SocketError DoOperationDisconnect(Socket socket, SafeCloseSocket handle)
         {
             SocketError socketError = SocketPal.Disconnect(socket, handle, _disconnectReuseSocket);
@@ -329,6 +334,7 @@ namespace System.Net.Sockets
 
             return errorCode;
         }
+#endif
 
         internal void LogBuffer(int size)
         {
@@ -367,7 +373,12 @@ namespace System.Net.Sockets
 
         private SocketError FinishOperationAccept(Internals.SocketAddress remoteSocketAddress)
         {
+#if MONO
+            var sa = Socket.SocketAddress_from_buffer(_acceptBuffer, _acceptAddressBufferCount);
+            System.Buffer.BlockCopy(sa.Buffer, 0, remoteSocketAddress.Buffer, 0, sa.Buffer.Length);
+#else
             System.Buffer.BlockCopy(_acceptBuffer, 0, remoteSocketAddress.Buffer, 0, _acceptAddressBufferCount);
+#endif
             _acceptSocket = _currentSocket.CreateAcceptSocket(
                 SafeCloseSocket.CreateSocket(_acceptedFileDescriptor),
                 _currentSocket._rightEndPoint.Create(remoteSocketAddress));

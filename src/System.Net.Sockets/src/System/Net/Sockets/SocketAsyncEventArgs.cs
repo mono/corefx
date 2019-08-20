@@ -9,6 +9,10 @@ using System.Threading;
 
 namespace System.Net.Sockets
 {
+#if MONO
+    using Internals = System.Net;
+#endif
+
     public partial class SocketAsyncEventArgs : EventArgs, IDisposable
     {
         // AcceptSocket property variables.
@@ -68,11 +72,7 @@ namespace System.Net.Sockets
         private int _acceptAddressBufferCount;
 
         // Internal SocketAddress buffer.
-#if MONO
-        internal SocketAddress _socketAddress;
-#else
         internal Internals.SocketAddress _socketAddress;
-#endif
 
         // Misc state variables.
         private readonly bool _flowExecutionContext;
@@ -546,7 +546,6 @@ namespace System.Net.Sockets
 
         partial void StartOperationCommonCore();
 
-#if !MONO
         internal void StartOperationAccept()
         {
             // AcceptEx needs a single buffer that's the size of two native sockaddr buffers with 16
@@ -576,7 +575,6 @@ namespace System.Net.Sockets
                 }
             }
         }
-#endif
 
         internal void StartOperationConnect(MultipleConnectAsync multipleConnect = null)
         {
@@ -692,14 +690,9 @@ namespace System.Net.Sockets
             SocketError socketError = SocketError.Success;
             switch (_completedOperation)
             {
-#if MARTIN_FIXME
                 case SocketAsyncOperation.Accept:
                     // Get the endpoint.
-#if MONO
-                    SocketAddress remoteSocketAddress = IPEndPointExtensions.Serialize(_currentSocket._rightEndPoint);
-#else
                     Internals.SocketAddress remoteSocketAddress = IPEndPointExtensions.Serialize(_currentSocket._rightEndPoint);
-#endif
 
                     socketError = FinishOperationAccept(remoteSocketAddress);
 
@@ -716,15 +709,12 @@ namespace System.Net.Sockets
                         _currentSocket.UpdateStatusAfterSocketError(socketError);
                     }
                     break;
-#endif
 
                 case SocketAsyncOperation.Connect:
                     socketError = FinishOperationConnect();
                     if (socketError == SocketError.Success)
                     {
-#if !MONO
                         if (NetEventSource.IsEnabled) NetEventSource.Connected(_currentSocket, _currentSocket.LocalEndPoint, _currentSocket.RemoteEndPoint);
-#endif
 
                         // Mark socket connected.
                         _currentSocket.SetToConnected();
@@ -746,11 +736,7 @@ namespace System.Net.Sockets
                 case SocketAsyncOperation.ReceiveFrom:
                     // Deal with incoming address.
                     _socketAddress.InternalSize = GetSocketAddressSize();
-#if MONO
-                    SocketAddress socketAddressOriginal = IPEndPointExtensions.Serialize(_remoteEndPoint);
-#else
                     Internals.SocketAddress socketAddressOriginal = IPEndPointExtensions.Serialize(_remoteEndPoint);
-#endif
                     if (!socketAddressOriginal.Equals(_socketAddress))
                     {
                         try
