@@ -7,6 +7,7 @@
 #include "pal_io.h"
 #include "pal_safecrt.h"
 #include "pal_utilities.h"
+#include "pal_runtimeshutdown.h"
 #include <fcntl.h>
 
 #include <stdlib.h>
@@ -1217,7 +1218,7 @@ int32_t SystemNative_ReceiveMessage(intptr_t socket, struct MessageHeader* messa
     ConvertMessageHeaderToMsghdr(&header, messageHeader, fd);
 
     ssize_t res;
-    while ((res = recvmsg(fd, &header, socketFlags)) < 0 && errno == EINTR);
+    while ((res = recvmsg(fd, &header, socketFlags)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
 
     assert(header.msg_name == messageHeader->SocketAddress); // should still be the same location as set in ConvertMessageHeaderToMsghdr
     assert(header.msg_control == messageHeader->ControlBuffer);
@@ -1260,7 +1261,7 @@ int32_t SystemNative_SendMessage(intptr_t socket, struct MessageHeader* messageH
     ConvertMessageHeaderToMsghdr(&header, messageHeader, fd);
 
     ssize_t res;
-    while ((res = sendmsg(fd, &header, socketFlags)) < 0 && errno == EINTR);
+    while ((res = sendmsg(fd, &header, socketFlags)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     if (res != -1)
     {
         *sent = res;
@@ -1283,9 +1284,9 @@ int32_t SystemNative_Accept(intptr_t socket, uint8_t* socketAddress, int32_t* so
     socklen_t addrLen = (socklen_t)*socketAddressLen;
     int accepted;
 #if defined(HAVE_ACCEPT4) && defined(SOCK_CLOEXEC)
-    while ((accepted = accept4(fd, (struct sockaddr*)socketAddress, &addrLen, SOCK_CLOEXEC)) < 0 && errno == EINTR);
+    while ((accepted = accept4(fd, (struct sockaddr*)socketAddress, &addrLen, SOCK_CLOEXEC)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
 #else
-    while ((accepted = accept(fd, (struct sockaddr*)socketAddress, &addrLen)) < 0 && errno == EINTR);
+    while ((accepted = accept(fd, (struct sockaddr*)socketAddress, &addrLen)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
 #if defined(FD_CLOEXEC)
     // macOS does not have accept4 but it can set _CLOEXEC on descriptor.
     // Unlike accept4 it is not atomic and the fd can leak child process.
@@ -1361,7 +1362,7 @@ int32_t SystemNative_Connect(intptr_t socket, uint8_t* socketAddress, int32_t so
     int fd = ToFileDescriptor(socket);
 
     int err;
-    while ((err = connect(fd, (struct sockaddr*)socketAddress, (socklen_t)socketAddressLen)) < 0 && errno == EINTR);
+    while ((err = connect(fd, (struct sockaddr*)socketAddress, (socklen_t)socketAddressLen)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     return err == 0 ? Error_SUCCESS : SystemNative_ConvertErrorPlatformToPal(errno);
 }
 
@@ -1965,7 +1966,7 @@ int32_t SystemNative_GetAtOutOfBandMark(intptr_t socket, int32_t* atMark)
 
     int result;
     int err;
-    while ((err = ioctl(fd, SIOCATMARK, &result)) < 0 && errno == EINTR);
+    while ((err = ioctl(fd, SIOCATMARK, &result)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     if (err == -1)
     {
         *atMark = 0;
@@ -1987,7 +1988,7 @@ int32_t SystemNative_GetBytesAvailable(intptr_t socket, int32_t* available)
 
     int result;
     int err;
-    while ((err = ioctl(fd, FIONREAD, &result)) < 0 && errno == EINTR);
+    while ((err = ioctl(fd, FIONREAD, &result)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     if (err == -1)
     {
         *available = 0;
@@ -2095,7 +2096,7 @@ static int32_t WaitForSocketEventsInner(int32_t port, struct SocketEvent* buffer
 
     struct epoll_event* events = (struct epoll_event*)buffer;
     int numEvents;
-    while ((numEvents = epoll_wait(port, events, *count, -1)) < 0 && errno == EINTR);
+    while ((numEvents = epoll_wait(port, events, *count, -1)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     if (numEvents == -1)
     {
         *count = 0;
@@ -2242,7 +2243,7 @@ static int32_t TryChangeSocketEventRegistrationInner(
     }
 
     int err;
-    while ((err = kevent(port, events, GetKeventNchanges(i), NULL, 0, NULL)) < 0 && errno == EINTR);
+    while ((err = kevent(port, events, GetKeventNchanges(i), NULL, 0, NULL)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     return err == 0 ? Error_SUCCESS : SystemNative_ConvertErrorPlatformToPal(errno);
 }
 
@@ -2254,7 +2255,7 @@ static int32_t WaitForSocketEventsInner(int32_t port, struct SocketEvent* buffer
 
     struct kevent* events = (struct kevent*)buffer;
     int numEvents;
-    while ((numEvents = kevent(port, NULL, 0, events, GetKeventNchanges(*count), NULL)) < 0 && errno == EINTR);
+    while ((numEvents = kevent(port, NULL, 0, events, GetKeventNchanges(*count), NULL)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     if (numEvents == -1)
     {
         *count = -1;
@@ -2463,7 +2464,7 @@ int32_t SystemNative_SendFile(intptr_t out_fd, intptr_t in_fd, int64_t offset, i
     off_t offtOffset = (off_t)offset;
 
     ssize_t res;
-    while ((res = sendfile(outfd, infd, &offtOffset, (size_t)count)) < 0 && errno == EINTR);
+    while ((res = sendfile(outfd, infd, &offtOffset, (size_t)count)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     if (res != -1)
     {
         *sent = res;
@@ -2503,7 +2504,7 @@ int32_t SystemNative_SendFile(intptr_t out_fd, intptr_t in_fd, int64_t offset, i
             if (count == 0) return Error_SUCCESS;
 
             // For EINTR, loop around and go again.
-            if (errno == EINTR) continue;
+            if (errno == EINTR && !SystemNative_IsRuntimeShuttingDown()) continue;
         }
 
         // For everything other than EINTR, bail.

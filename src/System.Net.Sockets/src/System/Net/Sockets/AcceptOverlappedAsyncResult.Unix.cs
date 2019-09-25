@@ -11,6 +11,10 @@ using Microsoft.Win32;
 
 namespace System.Net.Sockets
 {
+#if SYSTEM_NET_PRIMITIVES_DLL
+    using Internals = System.Net;
+#endif
+
     // AcceptOverlappedAsyncResult - used to take care of storage for async Socket BeginAccept call.
     internal sealed partial class AcceptOverlappedAsyncResult : BaseOverlappedAsyncResult
     {

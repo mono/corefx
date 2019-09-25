@@ -9,6 +9,7 @@
 #include "pal_utilities.h"
 #include "pal_safecrt.h"
 #include "pal_types.h"
+#include "pal_runtimeshutdown.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -614,7 +615,7 @@ int32_t SystemNative_FSync(intptr_t fd)
 int32_t SystemNative_FLock(intptr_t fd, int32_t operation)
 {
     int32_t result;
-    while ((result = flock(ToFileDescriptor(fd), operation)) < 0 && errno == EINTR);
+    while ((result = flock(ToFileDescriptor(fd), operation)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     return result;
 }
 
@@ -1005,7 +1006,7 @@ int32_t SystemNative_Poll(struct PollEvent* pollEvents, uint32_t eventCount, int
     }
 
     int rv;
-    while ((rv = poll(pollfds, (nfds_t)eventCount, milliseconds)) < 0 && errno == EINTR);
+    while ((rv = poll(pollfds, (nfds_t)eventCount, milliseconds)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
 
     if (rv < 0)
     {
@@ -1087,7 +1088,7 @@ int32_t SystemNative_PosixFAdvise(intptr_t fd, int64_t offset, int64_t length, i
                 ToFileDescriptor(fd),
                 (off_t)offset,
                 (off_t)length,
-                actualAdvice)) < 0 && errno == EINTR);
+                actualAdvice)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
     return result;
 #else
     // Not supported on this platform. Caller can ignore this failure since it's just a hint.
@@ -1124,7 +1125,7 @@ int32_t SystemNative_Read(intptr_t fd, void* buffer, int32_t bufferSize)
 
     ssize_t count;
 #if !MONO
-    while ((count = read(ToFileDescriptor(fd), buffer, (uint32_t)bufferSize)) < 0 && errno == EINTR);
+    while ((count = read(ToFileDescriptor(fd), buffer, (uint32_t)bufferSize)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
 #else // The Mono thread abort process can cause an EINTR here that needs to be handled
     count = read(ToFileDescriptor(fd), buffer, (uint32_t)bufferSize);
 #endif
@@ -1181,7 +1182,7 @@ int32_t SystemNative_Write(intptr_t fd, const void* buffer, int32_t bufferSize)
     }
 
     ssize_t count;
-    while ((count = write(ToFileDescriptor(fd), buffer, (uint32_t)bufferSize)) < 0 && errno == EINTR);
+    while ((count = write(ToFileDescriptor(fd), buffer, (uint32_t)bufferSize)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
 
     assert(count >= -1 && count <= bufferSize);
     return (int32_t)count;
@@ -1204,7 +1205,7 @@ static int32_t CopyFile_ReadWrite(int inFd, int outFd)
     {
         // Read up to what will fit in our buffer.  We're done if we get back 0 bytes.
         ssize_t bytesRead;
-        while ((bytesRead = read(inFd, buffer, BufferLength)) < 0 && errno == EINTR);
+        while ((bytesRead = read(inFd, buffer, BufferLength)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
         if (bytesRead == -1)
         {
             int tmp = errno;
@@ -1223,7 +1224,7 @@ static int32_t CopyFile_ReadWrite(int inFd, int outFd)
         while (bytesRead > 0)
         {
             ssize_t bytesWritten;
-            while ((bytesWritten = write(outFd, buffer + offset, (size_t)bytesRead)) < 0 && errno == EINTR);
+            while ((bytesWritten = write(outFd, buffer + offset, (size_t)bytesRead)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
             if (bytesWritten == -1)
             {
                 int tmp = errno;

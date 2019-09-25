@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace System.Net.Sockets
 {
+#if SYSTEM_NET_PRIMITIVES_DLL
+    using Internals = System.Net;
+#endif
+
     public partial class SocketAsyncEventArgs : EventArgs, IDisposable
     {
         private IntPtr _acceptedFileDescriptor;

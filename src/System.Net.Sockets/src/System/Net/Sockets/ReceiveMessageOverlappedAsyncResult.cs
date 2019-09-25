@@ -4,6 +4,10 @@
 
 namespace System.Net.Sockets
 {
+#if SYSTEM_NET_PRIMITIVES_DLL
+    using Internals = System.Net;
+#endif
+
     internal unsafe sealed partial class ReceiveMessageOverlappedAsyncResult : BaseOverlappedAsyncResult
     {
         private Internals.SocketAddress _socketAddressOriginal;

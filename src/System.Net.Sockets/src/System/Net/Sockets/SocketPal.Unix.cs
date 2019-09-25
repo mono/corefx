@@ -12,6 +12,10 @@ using System.Threading.Tasks;
 
 namespace System.Net.Sockets
 {
+#if SYSTEM_NET_PRIMITIVES_DLL
+    using Internals = System.Net;
+#endif
+
     internal static partial class SocketPal
     {
         public const bool SupportsMultipleConnectAttempts = false;

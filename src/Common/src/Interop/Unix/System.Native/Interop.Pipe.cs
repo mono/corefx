@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 internal static partial class Interop
@@ -25,7 +26,11 @@ internal static partial class Interop
         /// </summary>
         internal const int WriteEndOfPipe = 1;
 
+#if MONO
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+#else
         [DllImport(Libraries.SystemNative, EntryPoint = "SystemNative_Pipe", SetLastError = true)]
+#endif
         internal static extern unsafe int Pipe(int* pipefd, PipeFlags flags = 0); // pipefd is an array of two ints
     }
 }

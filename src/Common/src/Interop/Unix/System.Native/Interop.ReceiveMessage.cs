@@ -4,13 +4,18 @@
 
 using System;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 internal static partial class Interop
 {
     internal static partial class Sys
     {
+#if MONO
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+#else
         [DllImport(Libraries.SystemNative, EntryPoint = "SystemNative_ReceiveMessage")]
+#endif
         internal static extern unsafe Error ReceiveMessage(IntPtr socket, MessageHeader* messageHeader, SocketFlags flags, long* received);
     }
 }

@@ -6,6 +6,10 @@ using System.Diagnostics;
 
 namespace System.Net.Sockets
 {
+#if SYSTEM_NET_PRIMITIVES_DLL
+    using Internals = System.Net;
+#endif
+
     internal static class IPEndPointExtensions
     {
         public static Internals.SocketAddress Serialize(EndPoint endpoint)

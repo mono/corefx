@@ -14,6 +14,10 @@ using System.Threading;
 
 namespace System.Net.Sockets
 {
+#if SYSTEM_NET_PRIMITIVES_DLL
+    using Internals = System.Net;
+#endif
+
     // The Sockets.Socket class implements the Berkeley sockets interface.
     public partial class Socket : IDisposable
     {

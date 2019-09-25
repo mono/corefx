@@ -348,6 +348,10 @@ namespace System.Net.Sockets
             }
             catch (Exception e)
             {
+                if (Interop.Sys.IsRuntimeShuttingDown())
+                {
+                    return;
+                }
                 Environment.FailFast("Exception thrown from SocketAsyncEngine event loop: " + e.ToString(), e);
             }
         }

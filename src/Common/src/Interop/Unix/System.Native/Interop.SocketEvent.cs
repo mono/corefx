@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 internal static partial class Interop
@@ -46,7 +47,11 @@ internal static partial class Interop
         [DllImport(Libraries.SystemNative, EntryPoint = "SystemNative_TryChangeSocketEventRegistration")]
         internal static extern Error TryChangeSocketEventRegistration(IntPtr port, IntPtr socket, SocketEvents currentEvents, SocketEvents newEvents, IntPtr data);
 
+#if MONO
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+#else
         [DllImport(Libraries.SystemNative, EntryPoint = "SystemNative_WaitForSocketEvents")]
+#endif
         internal static extern unsafe Error WaitForSocketEvents(IntPtr port, SocketEvent* buffer, int* count);
     }
 }

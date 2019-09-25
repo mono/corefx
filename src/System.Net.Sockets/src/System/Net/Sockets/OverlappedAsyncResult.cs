@@ -4,6 +4,10 @@
 
 namespace System.Net.Sockets
 {
+#if SYSTEM_NET_PRIMITIVES_DLL
+    using Internals = System.Net;
+#endif
+
     // OverlappedAsyncResult
     //
     // This class is used to take care of storage for async Socket operation
