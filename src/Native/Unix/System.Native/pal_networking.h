@@ -144,7 +144,7 @@ enum SocketOptionName
     // SocketOptionName_SO_USELOOPBACK = 0x0040,
     SocketOptionName_SO_LINGER = 0x0080,
     SocketOptionName_SO_OOBINLINE = 0x0100,
-    // SocketOptionName_SO_DONTLINGER = ~SocketOptionName_SO_LINGER,
+    SocketOptionName_SO_DONTLINGER = ~SocketOptionName_SO_LINGER,
     SocketOptionName_SO_EXCLUSIVEADDRUSE = ~SocketOptionName_SO_REUSEADDR,
     SocketOptionName_SO_SNDBUF = 0x1001,
     SocketOptionName_SO_RCVBUF = 0x1002,

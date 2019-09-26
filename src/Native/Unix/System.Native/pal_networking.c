@@ -57,6 +57,12 @@
 #endif
 #endif
 
+#ifdef HAVE_GETIFADDRS
+// <net/if.h> must be included before <ifaddrs.h>
+#include <net/if.h>
+#include <ifaddrs.h>
+#endif
+
 #if HAVE_KQUEUE
 #if KEVENT_HAS_VOID_UDATA
 static void* GetKeventUdata(uintptr_t udata)
@@ -992,6 +998,41 @@ int32_t SystemNative_SetIPv4MulticastOption(intptr_t socket, int32_t multicastOp
     return err == 0 ? Error_SUCCESS : SystemNative_ConvertErrorPlatformToPal(errno);
 }
 
+#if defined(__APPLE__) || defined(__FreeBSD__)
+
+static int
+get_local_interface_id(int family)
+{
+#if !(defined(HAVE_GETIFADDRS) || defined(HAVE_QP2GETIFADDRS)) || !defined(HAVE_IF_NAMETOINDEX)
+    return 0;
+#else
+    struct ifaddrs *ifap = NULL, *ptr;
+    int idx = 0;
+
+    if (getifaddrs(&ifap))
+        return 0;
+
+    for (ptr = ifap; ptr; ptr = ptr->ifa_next) {
+        if (!ptr->ifa_addr || !ptr->ifa_name)
+            continue;
+        if (ptr->ifa_addr->sa_family != family)
+            continue;
+        if ((ptr->ifa_flags & IFF_LOOPBACK) != 0)
+            continue;
+        if ((ptr->ifa_flags & IFF_MULTICAST) == 0)
+            continue;
+
+        idx = if_nametoindex(ptr->ifa_name);
+        break;
+    }
+
+    freeifaddrs(ifap);
+    return idx;
+#endif
+}
+
+#endif /* defined(__APPLE__) || defined(__FreeBSD__) */
+
 int32_t SystemNative_GetIPv6MulticastOption(intptr_t socket, int32_t multicastOption, struct IPv6MulticastOption* option)
 {
     if (option == NULL)
@@ -1044,6 +1085,22 @@ int32_t SystemNative_SetIPv6MulticastOption(intptr_t socket, int32_t multicastOp
 #else
         option->InterfaceIndex;
 #endif
+
+#if defined(__APPLE__) || defined(__FreeBSD__)
+    /*
+     * Mono Bug #5504:
+     *
+     * Mac OS Lion doesn't allow ipv6mr_interface = 0.
+     *
+     * Tests on Windows and Linux show that the multicast group is only
+     * joined on one NIC when interface = 0, so we simply use the interface
+     * id from the first non-loopback interface (this is also what
+     * Dns.GetHostName (string.Empty) would return).
+     */
+    if (!opt.ipv6mr_interface)
+        opt.ipv6mr_interface = get_local_interface_id (AF_INET6);
+#endif
+
 
     ConvertByteArrayToIn6Addr(&opt.ipv6mr_multiaddr, &option->Address.Address[0], NUM_BYTES_IN_IPV6_ADDRESS);
 
@@ -1663,6 +1720,10 @@ static bool TryGetPlatformSocketOption(int32_t socketOptionName, int32_t socketO
                     *optName = IPV6_MULTICAST_HOPS;
                     return true;
 
+                case SocketOptionName_SO_IP_MULTICAST_LOOP:
+                    *optName = IPV6_MULTICAST_LOOP;
+                    return true;
+
                 default:
                     return false;
             }
@@ -1752,6 +1813,53 @@ int32_t SystemNative_GetSockOpt(
 #endif
             return Error_SUCCESS;
         }
+
+        // Compatibility with Mono
+        if (socketOptionName == SocketOptionName_SO_DONTLINGER)
+        {
+            if (*optionLen != 1)
+            {
+                return Error_EINVAL;
+            }
+
+            struct linger linger;
+            socklen_t optLen = (socklen_t)sizeof(linger);
+            int err = getsockopt(fd, SOL_SOCKET, SO_LINGER, &linger, &optLen);
+
+            if (err != 0)
+            {
+                return SystemNative_ConvertErrorPlatformToPal(errno);
+            }
+
+            *optionValue = !linger.l_onoff;
+            return Error_SUCCESS;
+        }
+    }
+
+    if (socketOptionLevel == SocketOptionLevel_SOL_IP)
+    {
+        if (socketOptionName == SocketOptionName_SO_IP_DONTFRAGMENT)
+        {
+            if (*optionLen != sizeof(int32_t))
+            {
+                return Error_EINVAL;
+            }
+
+#ifdef IP_MTU_DISCOVER
+            socklen_t optLen = (socklen_t)*optionLen;
+            int err = getsockopt(fd, SOL_IP, IP_MTU_DISCOVER, optionValue, &optLen);
+
+            if (err != 0)
+            {
+                return SystemNative_ConvertErrorPlatformToPal(errno);
+            }
+
+            *optionValue = *optionValue == IP_PMTUDISC_DO ? 1 : 0;
+#else
+            *optionValue = 0;
+#endif
+            return Error_SUCCESS;
+        }
     }
 
     int optLevel, optName;
@@ -1766,17 +1874,6 @@ int32_t SystemNative_GetSockOpt(
     {
         return SystemNative_ConvertErrorPlatformToPal(errno);
     }
-
-#ifdef IP_MTU_DISCOVER
-    // Handle some special cases for compatibility with Windows
-    if (socketOptionLevel == SocketOptionLevel_SOL_IP)
-    {
-        if (socketOptionName == SocketOptionName_SO_IP_DONTFRAGMENT)
-        {
-            *optionValue = *optionValue == IP_PMTUDISC_DO ? 1 : 0;
-        }
-    }
-#endif
 
     assert(optLen <= (socklen_t)*optionLen);
     *optionLen = (int32_t)optLen;
@@ -1834,6 +1931,21 @@ SystemNative_SetSockOpt(intptr_t socket, int32_t socketOptionLevel, int32_t sock
 #else
             return Error_SUCCESS;
 #endif
+        }
+
+        // Compatibility with Mono
+        if (socketOptionName == SocketOptionName_SO_DONTLINGER)
+        {
+            if (optionLen != sizeof(int32_t) && optionLen != 1)
+            {
+                return Error_EINVAL;
+            }
+
+            struct linger linger;
+            linger.l_onoff = (*optionValue) ? 0 : 1;
+            linger.l_linger = 0;
+            int err = setsockopt(fd, SOL_SOCKET, SO_LINGER, &linger, sizeof(struct linger));
+            return err == 0 ? Error_SUCCESS : SystemNative_ConvertErrorPlatformToPal(errno);
         }
     }
 #ifdef IP_MTU_DISCOVER
@@ -1992,7 +2104,21 @@ int32_t SystemNative_GetBytesAvailable(intptr_t socket, int32_t* available)
 
     int result;
     int err;
+#if defined (HOST_DARWIN)
+    // ioctl (socket, FIONREAD, XXX) returns the size of
+    // the UDP header as well on Darwin.
+    //
+    // Use getsockopt SO_NREAD instead to get the
+    // right values for TCP and UDP.
+    //
+    // ai_canonname can be null in some cases on darwin,
+    // where the runtime assumes it will be the value of
+    // the ip buffer.
+	socklen_t optlen = sizeof (int);
+    while ((err = getsockopt(fd, SOL_SOCKET, SO_NREAD, &result, &optlen)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
+#else
     while ((err = ioctl(fd, FIONREAD, &result)) < 0 && errno == EINTR && !SystemNative_IsRuntimeShuttingDown());
+#endif
     if (err == -1)
     {
         *available = 0;
