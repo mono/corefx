@@ -511,6 +511,13 @@ namespace System.Buffers
         }
 
         /// <summary>
+        /// Gets <see cref="ReadOnlySpan{T}"/> from the first segment.
+        /// </summary>
+        public ReadOnlySpan<T> FirstSpan => throw new PlatformNotSupportedException ();
+
+        internal void GetFirstSpan(out ReadOnlySpan<T> first, out SequencePosition next) => throw new PlatformNotSupportedException ();
+
+        /// <summary>
         /// An enumerator over the <see cref="ReadOnlySequence{T}"/>
         /// </summary>
         public struct Enumerator

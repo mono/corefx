@@ -170,5 +170,51 @@ namespace System.Buffers
         /// Returns false if both the Symbol and Precision are equal.
         /// </summary>
         public static bool operator !=(StandardFormat left, StandardFormat right) => !left.Equals(right);
+
+
+        /// <summary>
+        /// Tries to convert a <see cref="ReadOnlySpan{Char}"/> into a StandardFormat. A return value indicates whether the conversion succeeded or failed.
+        /// </summary>
+        public static bool TryParse(ReadOnlySpan<char> format, out StandardFormat result)
+        {
+            return ParseHelper(format, out result);
+        }
+
+        private static bool ParseHelper(ReadOnlySpan<char> format, out StandardFormat standardFormat, bool throws = false)
+        {
+            standardFormat = default;
+
+            if (format.Length == 0)
+                return true;
+
+            char symbol = format[0];
+            byte precision;
+            if (format.Length == 1)
+            {
+                precision = NoPrecision;
+            }
+            else
+            {
+                uint parsedPrecision = 0;
+                for (int srcIndex = 1; srcIndex < format.Length; srcIndex++)
+                {
+                    uint digit = format[srcIndex] - 48u; // '0'
+                    if (digit > 9)
+                    {
+                        return throws ? throw new FormatException(SR.Format(SR.Argument_CannotParsePrecision, MaxPrecision)) : false;
+                    }
+                    parsedPrecision = parsedPrecision * 10 + digit;
+                    if (parsedPrecision > MaxPrecision)
+                    {
+                        return throws ? throw new FormatException(SR.Format(SR.Argument_PrecisionTooLarge, MaxPrecision)) : false;
+                    }
+                }
+
+                precision = (byte)parsedPrecision;
+            }
+
+            standardFormat = new StandardFormat(symbol, precision);
+            return true;
+        }
     }
 }
