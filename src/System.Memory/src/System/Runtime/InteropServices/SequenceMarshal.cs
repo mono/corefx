@@ -70,9 +70,16 @@ namespace System.Runtime.InteropServices
         /// <returns>
         /// True if successful. <paramref name="value"/> will be default if failed (due to lack of space).
         /// </returns>
+#if __MonoCS__
+        public static bool TryRead<T>(ref SequenceReader<byte> reader, out T value)
+        {
+            throw new PlatformNotSupportedException();
+        }
+#else
         public static bool TryRead<T>(ref SequenceReader<byte> reader, out T value) where T : unmanaged
         {
             return reader.TryRead<T>(out value);
         }
+#endif
     }
 }
