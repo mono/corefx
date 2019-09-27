@@ -4380,11 +4380,6 @@ namespace System.Net.Sockets
         {
             if (!s_initialized)
             {
-                InitializeSocketsCore();
-            }
-
-            void InitializeSocketsCore()
-            {
                 lock (InternalSyncObject)
                 {
                     if (!s_initialized)
