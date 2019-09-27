@@ -121,7 +121,7 @@ namespace System.Buffers
             _startObject = array;
             _endObject = array;
             _startInteger = ReadOnlySequence.ArrayToSequenceStart(0);
-            _endInteger = ReadOnlySequence.ArrayToSequenceEnd(array!.Length); // TODO-NULLABLE: Remove ! when [DoesNotReturn] respected
+            _endInteger = ReadOnlySequence.ArrayToSequenceEnd(array.Length);
         }
 
         /// <summary>
@@ -218,22 +218,22 @@ namespace System.Buffers
                     startIndex += (int)start;
                     begin = new SequencePosition(startObject, startIndex);
 
-                    end = GetEndPosition(startSegment, startObject, startIndex, endObject!, endIndex, length);
+                    end = GetEndPosition(startSegment, startObject, startIndex, endObject, endIndex, length);
                 }
                 else
                 {
                     if (currentLength < 0)
                         ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
 
-                    begin = SeekMultiSegment(startSegment.Next!, endObject!, endIndex, start - currentLength, ExceptionArgument.start);
+                    begin = SeekMultiSegment(startSegment.Next, endObject, endIndex, start - currentLength, ExceptionArgument.start);
 
                     int beginIndex = GetIndex(begin);
-                    object beginObject = begin.GetObject()!;
+                    object beginObject = begin.GetObject();
 
                     if (beginObject != endObject)
                     {
                         Debug.Assert(beginObject != null);
-                        end = GetEndPosition((ReadOnlySequenceSegment<T>)beginObject, beginObject, beginIndex, endObject!, endIndex, length);
+                        end = GetEndPosition((ReadOnlySequenceSegment<T>)beginObject, beginObject, beginIndex, endObject, endIndex, length);
                     }
                     else
                     {
@@ -302,16 +302,16 @@ namespace System.Buffers
             }
 
             // Multi-Segment Sequence
-            var startSegment = (ReadOnlySequenceSegment<T>)startObject!;
+            var startSegment = (ReadOnlySequenceSegment<T>)startObject;
             ulong startRange = (ulong)(startSegment.RunningIndex + startIndex);
-            ulong sliceRange = (ulong)(((ReadOnlySequenceSegment<T>)sliceEndObject!).RunningIndex + sliceEndIndex);
+            ulong sliceRange = (ulong)(((ReadOnlySequenceSegment<T>)sliceEndObject).RunningIndex + sliceEndIndex);
 
             // This optimization works because we know sliceEndIndex, startIndex, and endIndex are all >= 0
             Debug.Assert(sliceEndIndex >= 0 && startIndex >= 0 && endIndex >= 0);
             if (!InRange(
                 sliceRange,
                 startRange,
-                (ulong)(((ReadOnlySequenceSegment<T>)endObject!).RunningIndex + endIndex)))
+                (ulong)(((ReadOnlySequenceSegment<T>)endObject).RunningIndex + endIndex)))
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
             }
@@ -330,7 +330,7 @@ namespace System.Buffers
                     ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
 
                 // End of segment. Move to start of next.
-                SequencePosition begin = SeekMultiSegment(startSegment.Next!, sliceEndObject, (int)sliceEndIndex, start - currentLength, ExceptionArgument.start);
+                SequencePosition begin = SeekMultiSegment(startSegment.Next, sliceEndObject, (int)sliceEndIndex, start - currentLength, ExceptionArgument.start);
                 return SliceImpl(begin, end);
             }
 
@@ -383,10 +383,10 @@ namespace System.Buffers
             }
 
             // Multi-Segment Sequence
-            var sliceStartSegment = (ReadOnlySequenceSegment<T>)sliceStartObject!;
+            var sliceStartSegment = (ReadOnlySequenceSegment<T>)sliceStartObject;
             ulong sliceRange = (ulong)((sliceStartSegment.RunningIndex + sliceStartIndex));
-            ulong startRange = (ulong)(((ReadOnlySequenceSegment<T>)startObject!).RunningIndex + startIndex);
-            ulong endRange = (ulong)(((ReadOnlySequenceSegment<T>)endObject!).RunningIndex + endIndex);
+            ulong startRange = (ulong)(((ReadOnlySequenceSegment<T>)startObject).RunningIndex + startIndex);
+            ulong endRange = (ulong)(((ReadOnlySequenceSegment<T>)endObject).RunningIndex + endIndex);
 
             // This optimization works because we know sliceStartIndex, startIndex, and endIndex are all >= 0
             Debug.Assert(sliceStartIndex >= 0 && startIndex >= 0 && endIndex >= 0);
@@ -413,7 +413,7 @@ namespace System.Buffers
                     ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
 
                 // End of segment. Move to start of next.
-                SequencePosition end = SeekMultiSegment(sliceStartSegment.Next!, endObject, (int)endIndex, length - currentLength, ExceptionArgument.length);
+                SequencePosition end = SeekMultiSegment(sliceStartSegment.Next, endObject, (int)endIndex, length - currentLength, ExceptionArgument.length);
                 return SliceImpl(start, end);
             }
 
