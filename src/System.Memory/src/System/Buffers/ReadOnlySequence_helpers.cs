@@ -255,7 +255,7 @@ namespace System.Buffers
                     ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
 
                 // End of segment. Move to start of next.
-                return SeekMultiSegment(startSegment.Next!, endObject!, endIndex, offset - currentLength, exceptionArgument);
+                return SeekMultiSegment(startSegment.Next, endObject, endIndex, offset - currentLength, exceptionArgument);
             }
 
             Debug.Assert(startObject == endObject);
@@ -291,7 +291,7 @@ namespace System.Buffers
                     ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
 
                 // End of segment. Move to start of next.
-                return SeekMultiSegment(startSegment.Next!, endObject!, endIndex, offset - currentLength, ExceptionArgument.offset);
+                return SeekMultiSegment(startSegment.Next, endObject, endIndex, offset - currentLength, ExceptionArgument.offset);
             }
 
             Debug.Assert(startObject == endObject);
@@ -353,18 +353,18 @@ namespace System.Buffers
             {
                 // Multi-Segment Sequence
                 // Storing this in a local since it is used twice within InRange()
-                ulong startRange = (ulong)(((ReadOnlySequenceSegment<T>)startObject!).RunningIndex + startIndex);
+                ulong startRange = (ulong)(((ReadOnlySequenceSegment<T>)startObject).RunningIndex + startIndex);
                 long runningIndex = 0;
                 if (positionIsNotNull)
                 {
                     Debug.Assert(position.GetObject() != null);
-                    runningIndex = ((ReadOnlySequenceSegment<T>)position.GetObject()!).RunningIndex;
+                    runningIndex = ((ReadOnlySequenceSegment<T>)position.GetObject()).RunningIndex;
                 }
 
                 if (!InRange(
                     (ulong)(runningIndex + sliceStartIndex),
                     startRange,
-                    (ulong)(((ReadOnlySequenceSegment<T>)endObject!).RunningIndex + endIndex)))
+                    (ulong)(((ReadOnlySequenceSegment<T>)endObject).RunningIndex + endIndex)))
                 {
                     ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
                 }
@@ -413,8 +413,8 @@ namespace System.Buffers
                 if (sliceStartRange > sliceEndRange)
                     ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
 
-                if (sliceStartRange < (ulong)(((ReadOnlySequenceSegment<T>)startObject!).RunningIndex + startIndex)
-                    || sliceEndRange > (ulong)(((ReadOnlySequenceSegment<T>)endObject!).RunningIndex + endIndex))
+                if (sliceStartRange < (ulong)(((ReadOnlySequenceSegment<T>)startObject).RunningIndex + startIndex)
+                    || sliceEndRange > (ulong)(((ReadOnlySequenceSegment<T>)endObject).RunningIndex + endIndex))
                 {
                     ThrowHelper.ThrowArgumentOutOfRangeException_PositionOutOfRange();
                 }
@@ -507,8 +507,8 @@ namespace System.Buffers
 
             if (startObject != endObject)
             {
-                var startSegment = (ReadOnlySequenceSegment<T>)startObject!;
-                var endSegment = (ReadOnlySequenceSegment<T>)endObject!;
+                var startSegment = (ReadOnlySequenceSegment<T>)startObject;
+                var endSegment = (ReadOnlySequenceSegment<T>)endObject;
                 // (End offset) - (start offset)
                 return (endSegment.RunningIndex + endIndex) - (startSegment.RunningIndex + startIndex);
             }
