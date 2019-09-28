@@ -78,5 +78,14 @@ namespace Microsoft.Win32.SafeHandles
         {
             get { return (long)handle < 0 && _namedPipeSocket == null; }
         }
+
+#if MONO
+        static SafePipeHandle()
+        {
+            // FIXME: ensure that the System.Native icalls are initialized by calling
+            //        mono_pal_init() prior to using them from Interop.Pipe.cs
+            Interop.Sys.EnsureInitialized();
+        }
+#endif
     }
 }
