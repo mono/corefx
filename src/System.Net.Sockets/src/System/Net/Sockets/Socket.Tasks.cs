@@ -194,7 +194,7 @@ namespace System.Net.Sockets
                 return new ValueTask<int>(Task.FromCanceled<int>(cancellationToken));
             }
 
-            AwaitableSocketAsyncEventArgs saea = LazyInitializer.EnsureInitialized(ref LazyInitializer.EnsureInitialized(ref _cachedTaskEventArgs, () => { return new CachedEventArgs(); } ).ValueTaskSend, () => { return new AwaitableSocketAsyncEventArgs(); });
+            AwaitableSocketAsyncEventArgs saea = LazyInitializer.EnsureInitialized(ref LazyInitializer.EnsureInitialized(ref _cachedTaskEventArgs, () => { return new CachedEventArgs(); } ).ValueTaskReceive, () => { return new AwaitableSocketAsyncEventArgs(); });
             if (saea.Reserve())
             {
                 Debug.Assert(saea.BufferList == null);
