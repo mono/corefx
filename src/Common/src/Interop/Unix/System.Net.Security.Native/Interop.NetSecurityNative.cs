@@ -71,7 +71,7 @@ internal static partial class Interop
             int inputLength,
             ref GssBuffer token,
             out uint retFlags,
-            out bool isNtlmUsed) => throw new PlatformNotSupportedException ();
+            out int isNtlmUsed) => throw new PlatformNotSupportedException ();
 
         internal static Status InitSecContext(
             out Status minorStatus,
@@ -86,7 +86,7 @@ internal static partial class Interop
             int inputLength,
             ref GssBuffer token,
             out uint retFlags,
-            out bool isNtlmUsed) => throw new PlatformNotSupportedException ();
+            out int isNtlmUsed) => throw new PlatformNotSupportedException ();
 
         internal static Status AcceptSecContext(
             out Status minorStatus,
@@ -190,7 +190,7 @@ internal static partial class Interop
             int inputLength,
             ref GssBuffer token,
             out uint retFlags,
-            out bool isNtlmUsed);
+            out int isNtlmUsed);
 
         [DllImport(Interop.Libraries.NetSecurityNative, EntryPoint="NetSecurityNative_InitSecContextEx")]
         internal static extern Status InitSecContext(
@@ -206,7 +206,7 @@ internal static partial class Interop
             int inputLength,
             ref GssBuffer token,
             out uint retFlags,
-            out bool isNtlmUsed);
+            out int isNtlmUsed);
 
         [DllImport(Interop.Libraries.NetSecurityNative, EntryPoint="NetSecurityNative_AcceptSecContext")]
         internal static extern Status AcceptSecContext(
