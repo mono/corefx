@@ -1257,6 +1257,42 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
     int ret;
     struct stat_ sourceStat;
     bool copied = false;
+
+    // First, copy permissions.
+    while ((ret = fchmod(outFd, sourceStat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO))) < 0 && errno == EINTR);
+    if (ret != 0)
+    {
+#if MONODROID
+        // Exception for MonoDroid - see https://github.com/mono/mono/issues/17133.
+        struct stat_ targetStat;
+
+        // First, stat the source file.
+        while ((ret = fstat_(inFd, &sourceStat)) < 0 && errno == EINTR);
+        if (ret != 0)
+        {
+            // If we can't stat() it, then we likely don't have permission to read it.
+            return -1;
+        }
+
+        // Stat the target file - and if that fails, abort.
+        while ((ret = fstat_(outFd, &targetStat)) < 0 && errno == EINTR);
+        if (ret != 0)
+        {
+            return -1;
+        }
+
+        // If the target file has any permissions that are _less_ restrictive than the ones of the source file,
+        // it is unacceptable to continue and we need to abort.
+        if ((targetStat.st_mode & sourceStat.st_mode) != 0)
+        {
+            return -1;
+        }
+#else
+        // Hard fail on all other platforms.
+        return -1;
+#endif
+    }
+
 #if HAVE_SENDFILE_4
     // If sendfile is available (Linux), try to use it, as the whole copy
     // can be performed in the kernel, without lots of unnecessary copying.
@@ -1332,17 +1368,6 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
         origTimes[1].tv_usec = ST_MTIME_NSEC(&sourceStat) / 1000;
         while ((ret = futimes(outFd, origTimes)) < 0 && errno == EINTR);
 #endif
-    }
-    if (ret != 0)
-    {
-        return -1;
-    }
-
-    // Then copy permissions.
-    while ((ret = fchmod(outFd, sourceStat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO))) < 0 && errno == EINTR);
-    if (ret != 0)
-    {
-        return -1;
     }
 
     return 0;
