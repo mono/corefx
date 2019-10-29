@@ -1258,7 +1258,6 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
     struct stat_ sourceStat;
     bool copied = false;
     
-#if !MONODROID
     // First, stat the source file.
     while ((ret = fstat_(inFd, &sourceStat)) < 0 && errno == EINTR);
     if (ret != 0)
@@ -1269,6 +1268,7 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
 
     // Then copy permissions.
     while ((ret = fchmod(outFd, sourceStat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO))) < 0 && errno == EINTR);
+#if !TARGET_ANDROID
     if (ret != 0)
     {
         return -1;
