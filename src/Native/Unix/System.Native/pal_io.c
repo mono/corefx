@@ -1334,21 +1334,21 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
 #endif
     }
 
-    if (ret != 0)	
-    {	
-        return -1;	
-    }	
+    if (ret != 0)
+    {
+        return -1;
+    }
 
-    // Then copy permissions.	
-    while ((ret = fchmod(outFd, sourceStat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO))) < 0 && errno == EINTR);	
+    // Then copy permissions.
+    while ((ret = fchmod(outFd, sourceStat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO))) < 0 && errno == EINTR);
 
 // We are ignoring the error on Android because in the case of external storage we are not allowed
-// to modify permissions, but the copy should still succeed. 
+// to modify permissions, but the copy should still succeed.
 // https://github.com/mono/mono/issues/17133
-#if !TARGET_ANDROID    
-    if (ret != 0)	
-    {	
-        return -1;	
+#if !TARGET_ANDROID
+    if (ret != 0)
+    {
+        return -1;
     }
 #endif
 
