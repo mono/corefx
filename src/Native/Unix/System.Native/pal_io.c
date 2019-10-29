@@ -1258,6 +1258,23 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
     struct stat_ sourceStat;
     bool copied = false;
     
+#if !MONODROID
+    // First, stat the source file.
+    while ((ret = fstat_(inFd, &sourceStat)) < 0 && errno == EINTR);
+    if (ret != 0)
+    {
+        // If we can't stat() it, then we likely don't have permission to read it.
+        return -1;
+    }
+
+    // Then copy permissions.
+    while ((ret = fchmod(outFd, sourceStat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO))) < 0 && errno == EINTR);
+    if (ret != 0)
+    {
+        return -1;
+    }
+#endif
+
 #if HAVE_SENDFILE_4
     // If sendfile is available (Linux), try to use it, as the whole copy
     // can be performed in the kernel, without lots of unnecessary copying.
@@ -1266,6 +1283,7 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
     {
         return -1;
     }
+
 
     // On 32-bit, if you use 64-bit offsets, the last argument of `sendfile' will be a
     // `size_t' a 32-bit integer while the `st_size' field of the stat structure will be off64_t.
@@ -1333,24 +1351,6 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
         while ((ret = futimes(outFd, origTimes)) < 0 && errno == EINTR);
 #endif
     }
-
-    if (ret != 0)
-    {
-        return -1;
-    }
-
-    // Then copy permissions.
-    while ((ret = fchmod(outFd, sourceStat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO))) < 0 && errno == EINTR);
-
-// We are ignoring the error on Android because in the case of external storage we are not allowed
-// to modify permissions, but the copy should still succeed.
-// https://github.com/mono/mono/issues/17133
-#if !TARGET_ANDROID
-    if (ret != 0)
-    {
-        return -1;
-    }
-#endif
 
     return 0;
 #endif // HAVE_FCOPYFILE
