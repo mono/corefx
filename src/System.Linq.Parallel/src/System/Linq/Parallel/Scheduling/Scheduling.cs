@@ -47,8 +47,13 @@ namespace System.Linq.Parallel
         // The number of milliseconds before we assume a producer has been zombied.
         internal const int ZOMBIED_PRODUCER_TIMEOUT = Timeout.Infinite;
 
+#if MONO
+        /* limit to degree of 16 to avoid too much contention */
+        internal const int MAX_SUPPORTED_DOP = 16;
+#else
         // The largest number of partitions that PLINQ supports.
         internal const int MAX_SUPPORTED_DOP = 512;
+#endif
 
 
         //-----------------------------------------------------------------------------------
