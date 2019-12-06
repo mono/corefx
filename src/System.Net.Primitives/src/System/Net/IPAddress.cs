@@ -31,6 +31,8 @@ namespace System.Net
         public static readonly IPAddress IPv6Loopback = new IPAddress(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, 0);
         public static readonly IPAddress IPv6None = new IPAddress(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0);
 
+#region Keep in sync with mono/metdata/w32socket-internals.h MonoIPAddress.
+
         /// <summary>
         /// For IPv4 addresses, this field stores the Address.
         /// For IPv6 addresses, this field stores the ScopeId.
@@ -52,6 +54,8 @@ namespace System.Net
         /// A lazily initialized cache of the <see cref="GetHashCode"/> value.
         /// </summary>
         private int _hashCode;
+
+#endregion
 
         internal const int NumberOfLabels = IPAddressParserStatics.IPv6AddressBytes / 2;
 
