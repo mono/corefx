@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Authentication;
 
+#if !MONO
 using TlsCipherSuite = Interop.AppleCrypto.TlsCipherSuite;
+#endif
 
 namespace System.Net.Security
 {
@@ -38,6 +40,7 @@ namespace System.Net.Security
         }
 #endif
 
+#if !MONO
         public SslConnectionInfo(SafeSslHandle sslContext)
         {
             SslProtocols protocol;
@@ -57,6 +60,7 @@ namespace System.Net.Security
 
             MapCipherSuite(cipherSuite);
         }
+#endif
 
         private void MapCipherSuite(TlsCipherSuite cipherSuite)
         {
@@ -203,12 +207,12 @@ namespace System.Net.Security
                 TlsCipherSuite.TLS_RSA_WITH_NULL_SHA,
                 TlsMapping.Rsa(CipherAlgorithmType.None, HashAlgorithmType.Sha1)
             },
-
+#if !MONO
             {
                 TlsCipherSuite.SSL_RSA_EXPORT_WITH_RC4_40_MD5,
                 TlsMapping.Rsa(CipherAlgorithmType.Rc4, 40, HashAlgorithmType.Md5)
             },
-
+#endif
             {
                 TlsCipherSuite.TLS_RSA_WITH_RC4_128_MD5,
                 TlsMapping.Rsa(CipherAlgorithmType.Rc4, 128, HashAlgorithmType.Md5)
@@ -218,7 +222,7 @@ namespace System.Net.Security
                 TlsCipherSuite.TLS_RSA_WITH_RC4_128_SHA,
                 TlsMapping.Rsa(CipherAlgorithmType.Rc4, 128, HashAlgorithmType.Sha1)
             },
-
+#if !MONO
             {
                 TlsCipherSuite.SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5,
                 TlsMapping.Rsa(CipherAlgorithmType.Rc2, 40, HashAlgorithmType.Md5)
@@ -233,12 +237,12 @@ namespace System.Net.Security
                 TlsCipherSuite.SSL_RSA_WITH_DES_CBC_SHA,
                 TlsMapping.Rsa(CipherAlgorithmType.Des, HashAlgorithmType.Sha1)
             },
-
+#endif
             {
                 TlsCipherSuite.TLS_RSA_WITH_3DES_EDE_CBC_SHA,
                 TlsMapping.Rsa(CipherAlgorithmType.TripleDes, HashAlgorithmType.Sha1)
             },
-
+#if !MONO
             {
                 TlsCipherSuite.SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.Des, 40, HashAlgorithmType.Sha1)
@@ -248,12 +252,12 @@ namespace System.Net.Security
                 TlsCipherSuite.SSL_DH_DSS_WITH_DES_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.Des, HashAlgorithmType.Sha1)
             },
-
+#endif
             {
                 TlsCipherSuite.TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.TripleDes, HashAlgorithmType.Sha1)
             },
-
+#if !MONO
             {
                 TlsCipherSuite.SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.Des, 40, HashAlgorithmType.Sha1)
@@ -263,12 +267,12 @@ namespace System.Net.Security
                 TlsCipherSuite.SSL_DH_RSA_WITH_DES_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.Des, HashAlgorithmType.Sha1)
             },
-
+#endif
             {
                 TlsCipherSuite.TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.TripleDes, HashAlgorithmType.Sha1)
             },
-
+#if !MONO
             {
                 TlsCipherSuite.SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA,
                 TlsMapping.DhEphem(CipherAlgorithmType.Des, 40, HashAlgorithmType.Sha1)
@@ -278,12 +282,12 @@ namespace System.Net.Security
                 TlsCipherSuite.SSL_DHE_DSS_WITH_DES_CBC_SHA,
                 TlsMapping.DhEphem(CipherAlgorithmType.Des, HashAlgorithmType.Sha1)
             },
-
+#endif
             {
                 TlsCipherSuite.TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,
                 TlsMapping.DhEphem(CipherAlgorithmType.TripleDes, HashAlgorithmType.Sha1)
             },
-
+#if !MONO
             {
                 TlsCipherSuite.SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA,
                 TlsMapping.DhEphem(CipherAlgorithmType.Des, 40, HashAlgorithmType.Sha1)
@@ -293,22 +297,22 @@ namespace System.Net.Security
                 TlsCipherSuite.SSL_DHE_RSA_WITH_DES_CBC_SHA,
                 TlsMapping.DhEphem(CipherAlgorithmType.Des, HashAlgorithmType.Sha1)
             },
-
+#endif
             {
                 TlsCipherSuite.TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,
                 TlsMapping.DhEphem(CipherAlgorithmType.TripleDes, HashAlgorithmType.Sha1)
             },
-
+#if !MONO
             {
                 TlsCipherSuite.SSL_DH_anon_EXPORT_WITH_RC4_40_MD5,
                 TlsMapping.DhStatic(CipherAlgorithmType.Rc4, 40, HashAlgorithmType.Md5)
             },
-
+#endif
             {
                 TlsCipherSuite.TLS_DH_anon_WITH_RC4_128_MD5,
                 TlsMapping.DhStatic(CipherAlgorithmType.Rc4, 128, HashAlgorithmType.Md5)
             },
-
+#if !MONO
             {
                 TlsCipherSuite.SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.Des, 40, HashAlgorithmType.Sha1)
@@ -318,7 +322,7 @@ namespace System.Net.Security
                 TlsCipherSuite.SSL_DH_anon_WITH_DES_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.Des, HashAlgorithmType.Sha1)
             },
-
+#endif
             {
                 TlsCipherSuite.TLS_DH_anon_WITH_3DES_EDE_CBC_SHA,
                 TlsMapping.DhStatic(CipherAlgorithmType.TripleDes, HashAlgorithmType.Sha1)
