@@ -28,9 +28,11 @@
 #include <termios.h>
 #include <unistd.h>
 #include <limits.h>
-#if HAVE_FCOPYFILE
-#include <copyfile.h>
-#elif HAVE_SENDFILE_4
+#if HAVE_CLONEFILE
+#include <sys/attr.h>
+#include <sys/clonefile.h>
+#endif
+#if HAVE_SENDFILE_4
 #include <sys/sendfile.h>
 #endif
 #if HAVE_INOTIFY
@@ -1193,7 +1195,6 @@ int32_t SystemNative_Write(intptr_t fd, const void* buffer, int32_t bufferSize)
     return (int32_t)count;
 }
 
-#if !HAVE_FCOPYFILE
 // Read all data from inFd and write it to outFd
 static int32_t CopyFile_ReadWrite(int inFd, int outFd)
 {
@@ -1246,25 +1247,15 @@ static int32_t CopyFile_ReadWrite(int inFd, int outFd)
     free(buffer);
     return 0;
 }
-#endif // !HAVE_FCOPYFILE
 
-int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
+int32_t SystemNative_CopyFile(intptr_t sourceFd, const char* srcPath, const char* destPath, int32_t overwrite)
 {
     int inFd = ToFileDescriptor(sourceFd);
-    int outFd = ToFileDescriptor(destinationFd);
-
-#if HAVE_FCOPYFILE
-    // If fcopyfile is available (OS X), try to use it, as the whole copy
-    // can be performed in the kernel, without lots of unnecessary copying.
-    // Copy data and metadata.
-    return fcopyfile(inFd, outFd, NULL, COPYFILE_ALL) == 0 ? 0 : -1;
-#else
-    // Get the stats on the source file.
+    int outFd;
     int ret;
+    int tmpErrno;
+    int openFlags;
     struct stat_ sourceStat;
-    bool copied = false;
-
-    // First, stat the source file.
     while ((ret = fstat_(inFd, &sourceStat)) < 0 && errno == EINTR);
     if (ret != 0)
     {
@@ -1284,9 +1275,74 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
     }
 #endif
 
-#if HAVE_SENDFILE_4
+    struct stat_ destStat;
+    while ((ret = stat_(destPath, &destStat)) < 0 && errno == EINTR);
+    if (ret == 0)
+    {
+        if (!overwrite)
+        {
+            errno = EEXIST;
+            return -1;
+        }
+
+        if (sourceStat.st_dev == destStat.st_dev && sourceStat.st_ino == destStat.st_ino)
+        {
+            // Attempt to copy file over itself. Fail with the same error code as
+            // open would.
+            errno = EBUSY;
+            return -1;
+        }
+
+#if HAVE_CLONEFILE
+        // For clonefile we need to unlink the destination file first but we need to
+        // check permission first to ensure we don't try to unlink read-only file.
+        if (access(destPath, W_OK) != 0)
+        {
+            return -1;
+        }
+        
+        ret = unlink(destPath);
+        if (ret != 0)
+        {
+            return ret;
+        }
+#endif
+    }
+
+#if HAVE_CLONEFILE
+    while ((ret = clonefile(srcPath, destPath, 0)) < 0 && errno == EINTR);
+    // EEXIST can happen due to race condition between the stat/unlink above
+    // and the clonefile here. The file could be (re-)created from another
+    // thread or process before we have a chance to call clonefile. Handle
+    // it by falling back to the slow path.
+    if (ret == 0 || (errno != ENOTSUP && errno != EXDEV && errno != EEXIST))
+    {
+        return ret;
+    }
+#else
+    // Unused variable
+    (void)srcPath;
+#endif
+
+    openFlags = O_WRONLY | O_TRUNC | O_CREAT | (overwrite ? 0 : O_EXCL);
+#if HAVE_O_CLOEXEC
+    openFlags |= O_CLOEXEC;
+#endif
+    while ((outFd = open(destPath, openFlags, sourceStat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO))) < 0 && errno == EINTR);
+    if (outFd < 0)
+    {
+        return -1;
+    }
+#if !HAVE_O_CLOEXEC
+    fcntl(outFd, F_SETFD, FD_CLOEXEC);
+#endif
+
+    // Get the stats on the source file.
+    bool copied = false;
+
     // If sendfile is available (Linux), try to use it, as the whole copy
     // can be performed in the kernel, without lots of unnecessary copying.
+#if HAVE_SENDFILE_4
 
     // On 32-bit, if you use 64-bit offsets, the last argument of `sendfile' will be a
     // `size_t' a 32-bit integer while the `st_size' field of the stat structure will be off64_t.
@@ -1302,6 +1358,9 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
         {
             if (errno != EINVAL && errno != ENOSYS)
             {
+                tmpErrno = errno;
+                close(outFd);
+                errno = tmpErrno;
                 return -1;
             }
             else
@@ -1327,6 +1386,9 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
     // Manually read all data from the source and write it to the destination.
     if (!copied && CopyFile_ReadWrite(inFd, outFd) != 0)
     {
+        tmpErrno = errno;
+        close(outFd);
+        errno = tmpErrno;
         return -1;
     }
 
@@ -1351,16 +1413,10 @@ int32_t SystemNative_CopyFile(intptr_t sourceFd, intptr_t destinationFd)
     while ((ret = futimes(outFd, origTimes)) < 0 && errno == EINTR);
 #endif
 
-#if !TARGET_ANDROID
-    // On Android, the copy should still succeed even if copying the file times didn't.
-    if (ret != 0)
-    {
-        return -1;
-    }
-#endif
-
+    tmpErrno = errno;
+    close(outFd);
+    errno = tmpErrno;
     return 0;
-#endif // HAVE_FCOPYFILE
 }
 
 intptr_t SystemNative_INotifyInit(void)
