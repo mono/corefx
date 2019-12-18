@@ -22,7 +22,7 @@ namespace System.Net.Http.Functional.Tests
         public HttpClientHandler_MartinTest(ITestOutputHelper output) : base(output) { }
 
         [ConditionalFact]
-        public async Task MartinTest()
+        public void MartinTest()
         {
             throw new SkipTestException("I LIVE ON THE MOON!");
         }
