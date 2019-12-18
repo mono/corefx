@@ -21,7 +21,7 @@ namespace System.Net.Http.Functional.Tests
     {
         public HttpClientHandler_MartinTest(ITestOutputHelper output) : base(output) { }
 
-        [Fact]
+        [ConditionalFact]
         public async Task MartinTest()
         {
             throw new SkipTestException("I LIVE ON THE MOON!");
