@@ -117,7 +117,6 @@ namespace System.Net.Http.Functional.Tests
 #endif
                 Http11LoopbackServerFactory.Singleton;
 
-#if !MONO
         // For use by remote server tests
 
         public static readonly IEnumerable<object[]> RemoteServersMemberData = Configuration.Http.RemoteServersMemberData;
@@ -142,7 +141,6 @@ namespace System.Net.Http.Functional.Tests
             SetDefaultRequestVersion(client, remoteServer.HttpVersion);
             return client;
         }
-#endif
 
         private sealed class VersionCheckerHttpHandler : DelegatingHandler
         {
