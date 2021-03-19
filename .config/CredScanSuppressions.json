@@ -1,11 +1,11 @@
 {
- "tool": "Credential Scanner",
- "suppressions": [
-  {
-    "file": [
-      "/src/System.Net.Http/tests/FunctionalTests/HttpClientHandlerTest.Proxy.cs"      
-    ],
-    "_justification": "Mostly test files. Other files contain harmless examples or constants."
-  },
- ]
+    "tool": "Credential Scanner",
+    "suppressions": [
+        {
+            "_justification": "Certificate for SQL test server.",
+            "file": [
+                "src/System.Data.SqlClient/tests/Tools/TDS/TDS.Servers/TdsServerCertificate.pfx"
+            ]
+        }
+    ]
 }
