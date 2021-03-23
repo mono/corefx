@@ -11,6 +11,7 @@ $script:testData = "corefx-testdata"
 $script:certificatePath = "$($script:testData)\corefx-testdata-master\System.Net.TestData"
 
 $script:clientPrivateKeyPath = Join-Path $script:certificatePath "testclient1_at_contoso.com.pfx"
+# [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="This is the key of certificates that are used just for testing purposes. It does not protect any resource.")]
 $script:clientPrivateKeyPassword = "testcertificate"
 
 $script:serverPrivateKeyPath = Join-Path $script:certificatePath "contoso.com.pfx"
