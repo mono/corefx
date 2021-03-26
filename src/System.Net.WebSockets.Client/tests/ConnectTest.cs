@@ -224,25 +224,5 @@ namespace System.Net.WebSockets.Client.Tests
                 Assert.Equal(AcceptedProtocol, cws.SubProtocol);
             }
         }
-<<<<<<< HEAD
-=======
-
-        [ConditionalFact(nameof(WebSocketsSupported))]
-        public async Task ConnectAsync_NonStandardRequestHeaders_HeadersAddedWithoutValidation()
-        {
-            await LoopbackServer.CreateClientAndServerAsync(async uri =>
-            {
-                using (var clientSocket = new ClientWebSocket())
-                using (var cts = new CancellationTokenSource(TimeOutMilliseconds))
-                {
-                    clientSocket.Options.SetRequestHeader("Authorization", "AWS4-HMAC-SHA256 Credential=PLACEHOLDER /20190301/us-east-2/neptune-db/aws4_request, SignedHeaders=host;x-amz-date, Signature=b8155de54d9faab00000000000000000000000000a07e0d7dda49902e4d9202");
-                    await clientSocket.ConnectAsync(uri, cts.Token);
-                }
-            }, server => server.AcceptConnectionAsync(async connection =>
-            {
-                Assert.True(await LoopbackHelper.WebSocketHandshakeAsync(connection));
-            }), new LoopbackServer.Options { WebSocketEndpoint = true });
-        }
->>>>>>> ec0428607d (Credscan second round)
     }
 }
